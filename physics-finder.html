@@ -24,7 +24,7 @@
 									<input type="file" id="fileInput" accept=".txt, .json" onchange="readFile(this)" style="display: none;">
 									<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
 								</ul>
-								<textarea id="decoded" style="resize: none;" readonly rows="5" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
+								<textarea id="decoded" style="resize: none;" readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
 							</div>
 						</section>
 						<div class="row gtr-uniform">
@@ -60,8 +60,9 @@
 								<input type="checkbox" id="checkboxCover(Physics)" checked>
 								<label for="checkboxCover(Physics)">Cover(Physics)</label>
 							</div>
-							<br>
-							<div class="table-container table-container-scroll" id="resultContainer"></div>
+						</div>
+						<div class="row">
+							<div class="table-container table-container-scroll2" id="resultContainer"></div>
 						</div>
 					</div>
 				</div>

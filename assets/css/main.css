@@ -587,7 +587,16 @@ ul.icons {
 }
 
 .table-container-scroll {
-  max-height: 63vh;
+  max-height: 72vh;
+  width: auto;
+  overflow-y: auto;
+  overflow-x: auto; 
+  border-top: 1px solid #ccc;
+  position: relative; 
+}
+
+.table-container-scroll2 {
+  max-height: 80vh;
   width: auto;
   overflow-y: auto;
   overflow-x: auto; 
@@ -1155,3 +1164,32 @@ body.is-menu2-visible #menu2 {
   float: right;
   color: #ffffff !important;
 }
+
+/* Loading Spinner */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
+}
+#loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #b64141;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

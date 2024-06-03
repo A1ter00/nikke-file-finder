@@ -17,6 +17,9 @@
 								<li><a href="#menu2" class="icon fa-user-circle"> Character ID'S</a></li>
 							</ul>
 						</header>
+						<div id="loading-overlay">
+							<div id="loading-spinner"></div>
+						</div>
 						<section>
 							<div class="content">
 								<ul class="actions">
@@ -24,7 +27,7 @@
 									<input type="file" id="fileInput" accept=".txt, .json" onchange="readFile(this)" style="display: none;">
 									<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
 								</ul>
-								<textarea id="textArea" style="resize: none;" readonly rows="5" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
+								<textarea id="textArea" style="resize: none;" readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
 							</div>
 						</section>
 						<div class="row gtr-uniform">
@@ -91,15 +94,17 @@
 								<label for="checkboxEventsWallpaper">EventsWallpaper</label>
 							</div>
 							<br>
+						</div>
+						<div class="row">
 							<div class="table-container table-container-scroll" id="resultContainer"></div>
 						</div>
+						
 					</div>
 				</div>
 			</div>
 			
 			<nav id="menu2">
 				<h4>Nikke ID's</h4>
-				
 				<table id="charactersTable">
 					<thead>
 						<tr>
@@ -111,7 +116,6 @@
 					</tbody>
 				</table>
 			</nav>
-
 		</div>
 
 		<!-- Scripts -->

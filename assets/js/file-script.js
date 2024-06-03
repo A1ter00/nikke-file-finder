@@ -19,6 +19,8 @@ const regexPatterns = {
 function readFile(input) {
 	const file = input.files[0];
 	if (file) {
+		let loadingOverlay = document.getElementById('loading-overlay');
+		loadingOverlay.style.display = 'block';
 		const reader = new FileReader();
 		reader.onload = function (e) {
 			let fileContent = e.target.result;
@@ -41,6 +43,7 @@ function readFile(input) {
 			fileContent = matchedStrings.join('\n');
 			document.getElementById("textArea").value = fileContent;
 			updateSelectorState();
+			loadingOverlay.style.display = 'none';
 		};
 		reader.readAsText(file);
 	}
@@ -48,6 +51,8 @@ function readFile(input) {
 
 //Folder Reader
 function readFolder(input) {
+	let loadingOverlay = document.getElementById('loading-overlay');
+	loadingOverlay.style.display = 'block';
 	const files = input.files;
 	if (files.length > 0) {
 		let combinedText = "";
@@ -75,6 +80,7 @@ function readFolder(input) {
 						combinedText += matchedStrings.join('\n');
 						document.getElementById("textArea").value = combinedText;
 						updateSelectorState();
+						loadingOverlay.style.display = 'none';
 					};
 				reader.readAsText(file);
 			}

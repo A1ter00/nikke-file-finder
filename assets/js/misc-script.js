@@ -1,4 +1,3 @@
-// Folder Reader
 document.getElementById('fileInput').addEventListener('change', async function(event) {
     let loadingOverlay = document.getElementById('loading-overlay');
     loadingOverlay.style.display = 'block';
@@ -13,7 +12,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         let file = files[i];
         if (file.name.endsWith('.json')) {
             let content = await readFileAsync(file);
-            let regex = /{([^}]*)}\\([^_]+(?:_[^_]+)*?)_([^_]+)\.bundle/g; //witchcraft
+            let regex = /{([^}]*)}\\([^_]+(?:_[^_]+)*?)_([^_]+)\.bundle/g;
             let match;
             while ((match = regex.exec(content)) !== null) {
                 let type = match[1];
@@ -176,13 +175,22 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         searchInput.placeholder = 'Search...';
         searchInput.addEventListener('input', function() {
             let searchTerm = this.value.trim().toLowerCase();
-            let rows = document.querySelectorAll('table tbody tr');
-            rows.forEach(row => {
-                let groupnameCell = row.cells[0].textContent.trim().toLowerCase();
-                if (groupnameCell.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+            let selectorValue = document.getElementById('selector').value;
+            let tables = document.querySelectorAll('table');
+            tables.forEach(table => {
+                let rows = table.querySelectorAll('tbody tr');
+                let rowVisible = false;
+                rows.forEach(row => {
+                    let groupnameCell = row.cells[0].textContent.trim().toLowerCase();
+                    if (groupnameCell.includes(searchTerm)) {
+                        row.style.display = '';
+                        rowVisible = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                if (selectorValue === 'All') {
+                    table.style.display = rowVisible ? '' : 'none';
                 }
             });
         });
@@ -206,9 +214,13 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         clearFilterButton.addEventListener('click', function() {
             let searchInput = document.querySelector('#searchInputDiv input');
             searchInput.value = '';
-            let rows = document.querySelectorAll('table tbody tr');
-            rows.forEach(row => {
-                row.style.display = '';
+            let tables = document.querySelectorAll('table');
+            tables.forEach(table => {
+                let rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    row.style.display = '';
+                });
+                table.style.display = '';
             });
         });
         clearFilterButtonDiv.appendChild(clearFilterButton);
@@ -225,4 +237,3 @@ document.getElementById('fileInput').addEventListener('change', async function(e
     generateClearFilterButton();
 
 });
-

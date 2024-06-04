@@ -18,6 +18,12 @@ document.getElementById('fileInput').addEventListener('change', async function(e
                 let type = match[1];
                 let groupname = match[2];
                 let hash = match[3];
+
+                if (!/^[a-zA-Z0-9]{32}$/.test(hash)) {
+                    groupname += `_${hash}`;
+                    hash = '';
+                }
+    
                 if (!results[type]) {
                     results[type] = [];
                 }

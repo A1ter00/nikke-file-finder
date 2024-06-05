@@ -20,8 +20,7 @@
 						<section>
 							<div class="content">
 								<ul class="actions">
-									<li><a href="#" class="button primary icon solid fa-file" id="uploadFile">Upload File</a> <a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
-									<input type="file" id="fileInput" accept=".txt, .json" onchange="readFile(this)" style="display: none;">
+									<li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
 									<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
 								</ul>
 								<textarea id="decoded" style="resize: none;" readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
@@ -41,18 +40,18 @@
 								<button id="exportButton" onclick="exportTable()" disabled>Export Table</button>
 							</div>
 							<div class="col-5-small">
-								<input type="text" id="idFilter" placeholder="Filter by Name or ID">
+								<input type="text" id="idFilter" disabled placeholder="Filter by Name or ID">
 							</div>
 							<div class="col-4-small">
-								<button id="applybtn" onclick="applyFilter()">Apply Filter</button>
+								<button id="applyButton" onclick="applyFilter()" disabled>Apply Filter</button>
 							</div>
 							<div class="col-4-small">
-								<button onclick="clearFilter()">Clear Filter</button>
+								<button id="clearButton" onclick="clearFilter()" disabled>Clear Filter</button>
 							</div>
 							<div class="col-8-small">
 								<input type="text" id="textArea2" readonly style="width: 150%;" placeholder="Physics Bundle File"></input>
 							</div>
-							<div class="col-12" id="checkboxGroup">
+							<div class="col-12" id="checkboxGroup" style="visibility: hidden;">
 								<input type="checkbox" id="checkboxAim(Physics)" checked>
 								<label for="checkboxAim(Physics)">Aim(Physics)</label>
 								<input type="checkbox" id="checkboxAimShooting(Physics)" checked>

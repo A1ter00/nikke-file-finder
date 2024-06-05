@@ -4,33 +4,6 @@ const regexPatterns = {
 	'AimShooting(Physics)': /spine\/physics\/(\w+)\/(\w+)\/aim-shooting (\w{1,32})/g,
 	'Cover(Physics)': /spine\/physics\/(\w+)\/(\w+)\/cover (\w{1,32})/g,
 };
-		
-//File Reader
-function readFile(input) {
-	const file = input.files[0];
-	if (file) {
-		const reader = new FileReader();
-		reader.onload = function (e) {
-			let fileContent = e.target.result;
-			const matchSpinePhysics = fileContent.match(/spinephysicssettings_assets_all_([a-zA-Z0-9]+)|spineinternal_assets_all_([^"]+).bundle","{UnityEngine.AddressableAssets.Addressables.RuntimePath}\\\\\\\\StandaloneWindows64\\\\\\\\mods\\\\\\\\([a-zA-Z0-9]+)/);
-			const matchKeyData = fileContent.match(/"m_KeyDataString":\s*"([^"]+)"/);
-			
-			if (matchSpinePhysics) {
-				let word = matchSpinePhysics[1] || matchSpinePhysics[3];
-				if (word && word.length !== 0) {
-					document.getElementById("textArea2").value = word;
-					if (matchKeyData) {
-						let longString = matchKeyData[1];
-						const decoded = decodeBase64(longString);
-						document.getElementById('decoded').value = decoded;
-					}
-				}
-				updateSelectorState();
-			}
-		};
-		reader.readAsText(file);
-	}
-}
 
 //Folder Reader
 function readFolder(input) {
@@ -57,6 +30,7 @@ function readFolder(input) {
 									document.getElementById('decoded').value = decoded;
 								}
 							}
+							checkboxGroup.style.visibility = 'visible';
 							updateSelectorState();
 						}
 					};
@@ -88,46 +62,28 @@ function decodeBase64(encodedInput) {
 	return decoded;
 }
 
-//Export Function
-function exportTable() {
-	const selector = document.getElementById("selector").value;
-	const resultContainer = document.getElementById("resultContainer");
-	const resultTables = resultContainer.querySelectorAll("table");
-	const exportData = [["ID", "Ver", "Container"]]
-	resultTables.forEach(table => {
-		const rows = table.querySelectorAll("tbody tr");
-		rows.forEach(row => {
-			const columns = row.querySelectorAll("td");
-			const rowData = Array.from(columns).map(column => column.textContent);
-			exportData.push(rowData);
-		});
-	})
-	const csvContent = exportData.map(row => row.join(",")).join("\n");
-	const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-	const link = document.createElement("a")
-	link.href = URL.createObjectURL(blob);
-	link.download = `${selector}_Table.csv`;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-}
-
 function updateSelectorState() {
 	const decoded = document.getElementById("decoded");
 	const selector = document.getElementById("selector");
 	const exportButton = document.getElementById("exportButton");
-	const checkboxGroup = document.getElementById('checkboxGroup')
+	const applyButton = document.getElementById("applyButton");
+	const clearButton = document.getElementById("clearButton");
+	const checkboxGroup = document.getElementById('checkboxGroup');
+	const idFilter = document.getElementById("idFilter");
+	exportButton.disabled = selector.value === "None" || decoded.value.trim() === "";
+	applyButton.disabled = selector.value === "None" || decoded.value.trim() === "";
+	clearButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	selector.disabled = decoded.value.trim() === "";
-	exportButton.disabled = selector.value === "None" || selector.value === "All";
+	idFilter.disabled = decoded.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
 		} else {
 			checkboxGroup.style.visibility = 'hidden';
 		}
+		applyFilter();
 	});
 	analyzeText();
-	updateTableVisibility();
 }
 
 //MAIN		

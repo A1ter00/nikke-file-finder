@@ -1085,7 +1085,7 @@ body.is-menu2-visible #menu2 {
 /* Filter Popup */
 .filtered-results-popup {
   width: 250px;
-  max-height: 30%;
+  max-height: 21%;
   padding: 10px;
   background-color: white;
   border: 1px solid #ccc;

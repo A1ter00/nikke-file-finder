@@ -15,40 +15,6 @@ const regexPatterns = {
 	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)_(\w+).bundle/g,
 };
 
-//File Reader
-function readFile(input) {
-	const file = input.files[0];
-	if (file) {
-		let loadingOverlay = document.getElementById('loading-overlay');
-		loadingOverlay.style.display = 'block';
-		const reader = new FileReader();
-		reader.onload = function (e) {
-			let fileContent = e.target.result;
-			const matchedStrings = [];
-			const matchIcon = fileContent.match(/icons-char-si\(hd\)_assets_all_(\w+)\.bundle/);
-		
-			if (matchIcon) {
-				let word = matchIcon[1];
-				document.getElementById("textArea2").value = word;
-			}
-		
-			for (const key in regexPatterns) {
-				const regex = regexPatterns[key];
-				let match;
-				while ((match = regex.exec(fileContent)) !== null) {
-					matchedStrings.push(match[0]);
-				}
-			}
-
-			fileContent = matchedStrings.join('\n');
-			document.getElementById("textArea").value = fileContent;
-			updateSelectorState();
-			loadingOverlay.style.display = 'none';
-		};
-		reader.readAsText(file);
-	}
-}
-
 //Folder Reader
 function readFolder(input) {
 	let loadingOverlay = document.getElementById('loading-overlay');
@@ -79,6 +45,7 @@ function readFolder(input) {
 
 						combinedText += matchedStrings.join('\n');
 						document.getElementById("textArea").value = combinedText;
+						checkboxGroup.style.visibility = 'visible';
 						updateSelectorState();
 						loadingOverlay.style.display = 'none';
 					};
@@ -88,51 +55,28 @@ function readFolder(input) {
 	}
 }
 
-//Export Function
-function exportTable() {
-	const selector = document.getElementById("selector").value;
-	const resultContainer = document.getElementById("resultContainer");
-	const resultTables = resultContainer.querySelectorAll("table");
-	var exportData = "";
-	if (selector === "Background"|| selector === "EventsWallpaper"){
-		 exportData = [["ID", "File"]];
-	} else {
-		 exportData = [["ID", "Ver", "File"]];
-	}
-	resultTables.forEach(table => {
-		const rows = table.querySelectorAll("tbody tr");
-		rows.forEach(row => {
-			const columns = row.querySelectorAll("td");
-			const rowData = Array.from(columns).map(column => column.textContent);
-			exportData.push(rowData);
-		});
-	});
-	const csvContent = exportData.map(row => row.join(",")).join("\n");
-	const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-	const link = document.createElement("a");
-	link.href = URL.createObjectURL(blob);
-	link.download = `${selector}_Table.csv`;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-}
-
 function updateSelectorState() {
 	const textArea = document.getElementById("textArea");
 	const selector = document.getElementById("selector");
 	const exportButton = document.getElementById("exportButton");
+	const applyButton = document.getElementById("applyButton");
+	const clearButton = document.getElementById("clearButton");
 	const checkboxGroup = document.getElementById('checkboxGroup');
-	exportButton.disabled = selector.value === "None" || selector.value === "All";
+	const idFilter = document.getElementById("idFilter");
+	exportButton.disabled = selector.value === "None" || textArea.value.trim() === "";
+	applyButton.disabled = selector.value === "None" || textArea.value.trim() === "";
+	clearButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	selector.disabled = textArea.value.trim() === "";
+	idFilter.disabled = textArea.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
 		} else {
 			checkboxGroup.style.visibility = 'hidden';
 		}
+		applyFilter();
 	});
 	analyzeText();
-	updateTableVisibility();
 }
 
 //MAIN

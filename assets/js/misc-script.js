@@ -1,4 +1,5 @@
-document.getElementById('fileInput').addEventListener('change', async function(event) {
+//Folder Reader
+document.getElementById('folderInput').addEventListener('change', async function(event) {
     let loadingOverlay = document.getElementById('loading-overlay');
     loadingOverlay.style.display = 'block';
 
@@ -12,7 +13,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         let file = files[i];
         if (file.name.endsWith('.json')) {
             let content = await readFileAsync(file);
-            let regex = /{([^}]*)}\\([^_]+(?:_[^_]+)*?)_([^_]+)\.bundle/g;
+            let regex = /{([^}]*)}\\([^_]+(?:_[^_]+)*?)_([^_]+)\.bundle/g; //witchcraft
             let match;
             while ((match = regex.exec(content)) !== null) {
                 let type = match[1];
@@ -31,6 +32,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
             }
         }
     }
+    
     generateTables(results);
     highlightRows();
 
@@ -49,37 +51,48 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         });
     }
 
+    //Generate Objects
     function generateTables(results) {
         clearSelector();
         clearExportButton();
-
+    
         let selectorDiv = document.getElementById('selectorDiv');
         let selector = document.createElement('select');
         selector.id = 'selector';
         selector.addEventListener('change', function() {
             let selectedType = this.value;
             let tables = document.querySelectorAll('table');
+        
             tables.forEach(table => {
-                let caption = table.querySelector('caption').textContent;
-                if (selectedType === 'All' || caption === selectedType) {
+                table.style.display = 'none';
+            });
+        
+            tables.forEach(table => {
+                let captionElement = table.querySelector('caption');
+                let caption = captionElement ? captionElement.textContent : '';
+                if (selectedType === 'All') {
                     table.style.display = '';
+                    let searchInput = document.querySelector('#searchInputDiv input');
+                    searchInput.dispatchEvent(new Event('input'));
                 } else {
-                    table.style.display = 'none';
+                    if (caption === selectedType) {
+                        table.style.display = '';
+                    }
                 }
             });
         });
-
+        
         let allOption = document.createElement('option');
         allOption.textContent = 'All';
         selector.appendChild(allOption);
-
+    
         for (let type in results) {
             if (results.hasOwnProperty(type)) {
                 let table = document.createElement('table');
                 let caption = document.createElement('caption');
                 caption.textContent = type;
                 table.appendChild(caption);
-
+    
                 let tbody = table.createTBody();
                 results[type].forEach(result => {
                     let row = tbody.insertRow();
@@ -88,21 +101,22 @@ document.getElementById('fileInput').addEventListener('change', async function(e
                     let hashCell = row.insertCell();
                     hashCell.textContent = result.hash;
                 });
+    
                 tablesDiv.appendChild(table);
-
+    
                 let option = document.createElement('option');
                 option.textContent = type;
                 selector.appendChild(option);
             }
         }
-
+    
         let noneOption = document.createElement('option');
         noneOption.textContent = 'None';
         selector.appendChild(noneOption);
-
+    
         selectorDiv.appendChild(selector);
     }
-
+    
     function clearSelector() {
         let existingSelector = document.getElementById('selector');
         if (existingSelector) {
@@ -132,18 +146,21 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         if (selectedType === 'None') {
             return;
         }
-
+    
         let tables = document.querySelectorAll('table');
         let selectedTables = [...tables].filter(table => {
-            let caption = table.querySelector('caption').textContent;
-            return selectedType === 'All' || caption === selectedType;
+            let captionElement = table.querySelector('caption');
+            let caption = captionElement ? captionElement.textContent : '';
+            return captionElement && (selectedType === 'All' || captionElement.textContent === selectedType);
         });
-
+    
         let csvContent = "data:text/csv;charset=utf-8,";
         selectedTables.forEach(table => {
+            let captionElement = table.querySelector('caption');
+            let caption = captionElement ? captionElement.textContent : '';            
             let rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
-                let rowData = [];
+                let rowData = [caption];
                 row.childNodes.forEach(cell => {
                     if (cell.textContent) {
                         rowData.push(cell.textContent.trim());
@@ -152,8 +169,8 @@ document.getElementById('fileInput').addEventListener('change', async function(e
                 csvContent += rowData.join(',') + '\n';
             });
         });
-
-        let fileName = selectedType === 'All' ? 'All-Tables.csv' : `${selectedType}-Table.csv`;
+    
+        let fileName = selectedType === 'All' ? 'All(Misc)_Tables.csv' : `${selectedType}-Table.csv`;
         let encodedUri = encodeURI(csvContent);
         let link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -162,7 +179,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         link.click();
         document.body.removeChild(link);
     }
-
+    
     generateExportButton();
 
     document.getElementById('selector').addEventListener('change', function() {
@@ -195,13 +212,19 @@ document.getElementById('fileInput').addEventListener('change', async function(e
                         row.style.display = 'none';
                     }
                 });
+    
+                let emptyTable = !Array.from(rows).some(row => row.style.display !== 'none');
                 if (selectorValue === 'All') {
-                    table.style.display = rowVisible ? '' : 'none';
+                    table.style.display = emptyTable ? 'none' : '';
+                } else {
+                    table.style.display = selectorValue !== table.querySelector('caption').textContent ? 'none' : '';
                 }
             });
         });
+        
         searchInputDiv.appendChild(searchInput);
     }
+    
 
     function clearSearchInput() {
         let existingSearchInput = document.querySelector('#searchInputDiv input');
@@ -228,9 +251,25 @@ document.getElementById('fileInput').addEventListener('change', async function(e
                 });
                 table.style.display = '';
             });
+    
+            // Show only the table that corresponds to the selector
+            let selector = document.getElementById('selector');
+            let selectedType = selector.value;
+            if (selectedType !== 'All') {
+                tables.forEach(table => {
+                    let captionElement = table.querySelector('caption');
+                    let caption = captionElement ? captionElement.textContent : '';
+                    if (caption === selectedType) {
+                        table.style.display = '';
+                    } else {
+                        table.style.display = 'none';
+                    }
+                });
+            }
         });
         clearFilterButtonDiv.appendChild(clearFilterButton);
     }
+    
 
     function clearClearFilterButton() {
         let existingClearFilterButton = document.querySelector('#clearFilterButtonDiv button');

@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', fetchData);
-var applybtn = document.getElementById("applybtn");
-document.getElementById('uploadFile').addEventListener('click', function() {document.getElementById('fileInput').click();});
+var applyButton = document.getElementById("applyButton");
 document.getElementById('uploadFolder').addEventListener('click', function() {document.getElementById('folderInput').click();});
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {checkbox.addEventListener('change', updateTableVisibility);});
-document.addEventListener("keypress", function(event) {if (event.keyCode === 13) {applybtn.click();}});
+document.addEventListener("keypress", function(event) {if (event.keyCode === 13) {applyButton.click();}});
 
 // Fetch Nikke IDs
 let nikkeNameID = {};   
@@ -52,23 +51,71 @@ function handleClick(clickedId, pageName) {
     }
 }
 
+//Export Function
+function exportTable() {
+    const selector = document.getElementById("selector").value;
+    const resultContainer = document.getElementById("resultContainer");
+    const resultTables = resultContainer.querySelectorAll("table");
+    let exportData = [];
+    const filename = window.location.pathname.split('/').pop().split('.')[0];
+    
+    resultTables.forEach((table, tableIndex) => {
+        const tableData = [];
+        const startCol = tableIndex * 6;
+        const tableTitle = table.querySelector("caption") ? table.querySelector("caption").textContent : "No Title";
+        tableData.push([tableTitle]);
+        const headers = table.querySelectorAll("thead th");
+        const headerData = Array.from(headers).map(header => header.textContent);
+        tableData.push(headerData);
+        const rows = table.querySelectorAll("tbody tr");
+        rows.forEach(row => {
+            const columns = row.querySelectorAll("td");
+            const rowData = Array.from(columns).map(column => column.textContent);
+            tableData.push(rowData);
+        });
+        tableData.forEach((row, rowIndex) => {
+            if (!exportData[rowIndex]) {
+                exportData[rowIndex] = [];
+            }
+            while (exportData[rowIndex].length < startCol) {
+                exportData[rowIndex].push("");
+            }
+            exportData[rowIndex] = exportData[rowIndex].concat(row);
+        });
+    });
+
+    let customName = selector === 'All' ? `All(${filename})` : selector;
+    const csvContent = exportData.map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${customName}_Table.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Search Function
 function applyFilter() {
     let idFilter = document.getElementById("idFilter").value.trim().toLowerCase();
 
-    const match = idFilter.match(/^c(\d+)$/);
-    if (match) {
-        idFilter = match[1];
-    }
-    let idsToSearch = new Set();
+    if (idFilter.length === 0){
 
-    for (const [id, name] of Object.entries(nikkeNameID)) {
-        if (id.includes(idFilter) || name.toLowerCase().includes(idFilter)) {
-            idsToSearch.add(id);
+    } else{
+        const match = idFilter.match(/^c(\d+)$/);
+        if (match) {
+            idFilter = match[1];
         }
+        let idsToSearch = new Set();
+
+        for (const [id, name] of Object.entries(nikkeNameID)) {
+            if (id.includes(idFilter) || name.toLowerCase().includes(idFilter)) {
+                idsToSearch.add(id);
+            }
     }
 
     const resultTables = document.querySelectorAll(".table-container table");
+    const selector = document.getElementById("selector").value;
     resultTables.forEach(table => {
         const tableBody = table.querySelector("tbody");
         const rows = tableBody.querySelectorAll("tr");
@@ -83,10 +130,10 @@ function applyFilter() {
             }
         });
     });
-
+    updateTableVisibility();
     showFilteredResultsPopup([...idsToSearch]);
+    }
 }
-
 
 // Filtered Result Popup
 function showFilteredResultsPopup(filteredIds) {
@@ -134,13 +181,20 @@ function closeFilteredResultsPopup() {
 
 function clearFilter() {
     const resultTables = document.querySelectorAll(".table-container table");
+    const selector = document.getElementById("selector").value;
+
     resultTables.forEach(table => {
         const tableBody = table.querySelector("tbody");
         const rows = tableBody.querySelectorAll("tr");
         rows.forEach(row => {
             row.style.display = "";
         });
+
+        if (selector === 'All') {
+            table.style.display = "";
+        }
     });
+    updateTableVisibility();
     document.getElementById("idFilter").value = "";
     closeFilteredResultsPopup();
 }
@@ -149,12 +203,29 @@ function updateTableVisibility() {
     const resultTables = document.querySelectorAll(".table-container table");
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     const selector = document.getElementById("selector").value;
+
     resultTables.forEach((table, index) => {
         const checkbox = checkboxes[index];
-        if (checkbox && !checkbox.checked && selector === "All") {
-            table.style.display = "none";
-        } else {
-            table.style.display = "";
+        if (checkbox) {
+            const tableBody = table.querySelector("tbody");
+            const rows = tableBody.querySelectorAll("tr");
+            let hasVisibleRows = false;
+
+            rows.forEach(row => {
+                if (row.style.display !== "none") {
+                    hasVisibleRows = true;
+                }
+            });
+
+            if (selector === 'All') {
+                if (!checkbox.checked || !hasVisibleRows) {
+                    table.style.display = "none";
+                } else {
+                    table.style.display = "";
+                }
+            } else {
+                table.style.display = "";
+            }
         }
     });
 }

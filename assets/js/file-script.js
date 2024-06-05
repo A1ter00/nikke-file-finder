@@ -52,6 +52,8 @@ function readFolder(input) {
 				reader.readAsText(file);
 			}
 		}
+	} else{
+		loadingOverlay.style.display = 'none';
 	}
 }
 

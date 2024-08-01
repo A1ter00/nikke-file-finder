@@ -8,11 +8,13 @@ const regexPatterns = {
 	'Burst(Lobby)': /livewallpaperprefabs_assets_livewallpaper\/eventscene_(\w+)_cutscene_(\w+)\.bundle/g,
 	'Burst(Battle)': /spotskillcutscene_assets_(\w+)_cut_scene_(\w+)\.bundle/g,
 	'SD-Model' : /sdcharacters_assets_(\w+)_(\w+)_var_(\w+)\.bundle/g,
-	Voice: /voice_required_pc_(\w+)_assets_all_(\w+)\.bundle/g,
-	'Voice(MaxBond)': /voice_add_pc_(\w+)_assets_all_(\w+)\.bundle/g,
-	'Voice(Title)': /voice_required_titlecall_assets_(\w+)_titlecall_1_(\w+)\.bundle/g,
 	Background: /scenariobackground\(hd\)_assets_(\w+)_(\w+).bundle/g,
 	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)_(\w+).bundle/g,
+};
+
+window.onload = function() {
+    generateCheckboxes();
+    generateSelector();
 };
 
 //Folder Reader
@@ -45,6 +47,7 @@ function readFolder(input) {
 
 						combinedText += matchedStrings.join('\n');
 						document.getElementById("textArea").value = combinedText;
+						
 						checkboxGroup.style.visibility = 'visible';
 						updateSelectorState();
 						loadingOverlay.style.display = 'none';
@@ -65,11 +68,13 @@ function updateSelectorState() {
 	const clearButton = document.getElementById("clearButton");
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
+	const textArea2 = document.getElementById("textArea2");
 	exportButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	applyButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	clearButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	selector.disabled = textArea.value.trim() === "";
 	idFilter.disabled = textArea.value.trim() === "";
+	textArea2.disabled = textArea.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';

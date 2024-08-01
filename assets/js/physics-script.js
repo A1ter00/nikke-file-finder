@@ -5,6 +5,11 @@ const regexPatterns = {
 	'Cover(Physics)': /spine\/physics\/(\w+)\/(\w+)\/cover (\w{1,32})/g,
 };
 
+window.onload = function() {
+    generateCheckboxes();
+    generateSelector();
+};
+
 //Folder Reader
 function readFolder(input) {
 	const files = input.files;
@@ -70,11 +75,13 @@ function updateSelectorState() {
 	const clearButton = document.getElementById("clearButton");
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
+	const textArea2 = document.getElementById("textArea2");
 	exportButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	applyButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	clearButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	selector.disabled = decoded.value.trim() === "";
 	idFilter.disabled = decoded.value.trim() === "";
+	textArea2.disabled = decoded.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';

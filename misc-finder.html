@@ -11,12 +11,6 @@
 		<div id="wrapper">
 			<div id="main">
 				<div class="inner">
-						<header id="header">
-							<a class="logo"><strong>Nikke Miscellaneous File Finder</strong> by A1teri</a>
-							<ul class="icons">
-								<li><a href="#menu2" class="icon fa-user-circle"> Character ID'S</a></li>
-							</ul>
-						</header>
 						<div id="loading-overlay">
 							<div id="loading-spinner"></div>
 						</div>
@@ -25,7 +19,7 @@
 								<ul class="actions">
 									<li><a href="#" style="height: 45px; line-height: 4.5em;" class="button primary icon solid fa-file" id="uploadFolder">Upload Folder</a></li>
 									<input type="file" id="folderInput"  directory webkitdirectory mozdirectory multiple style="display: none;">
-									<textarea type="text" id="textArea" style="resize: none; margin-left: 10px; font-weight: 900;" readonly rows="1" cols="60">Make sure you only have the latest files in your addressables!</textarea>
+									<textarea type="text" id="textArea" style="resize: none; margin-left: 10px; font-weight: 900; cursor: default;" readonly rows="1" cols="60">Make sure you only have the latest files in your addressables!</textarea>
 								</ul>
 							</div>
 						</section>
@@ -36,8 +30,11 @@
 							<div class="col-4-small">
 								<div id="exportButtonDiv"></div>
 							</div>
-							<div class="col-5-small" style="width: 30%;">
-								<div type="text" id="searchInputDiv" placeholder="Search..."></div>
+							<div class="col-5-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Search...</span>
+									<div type="text" id="searchInputDiv" placeholder="Search..."></div>
+								</div>
 							</div>
 							<div class="col-4-small">
 								<div id="clearFilterButtonDiv"></div>
@@ -46,22 +43,12 @@
 						<br>
 						<div class="row">
 							<div class="table-container table-container-scroll2" id="resultContainer"></div>
+							<button id="goToTopBtn" onclick="scrollToTop()" style="display: none;">
+								<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 6.414 7.293 7.293 1.414-1.414L12 3.586l-8.707 8.707 1.414 1.414L12 6.414z"/><path d="m3.293 18.293 1.414 1.414L12 12.414l7.293 7.293 1.414-1.414L12 9.586l-8.707 8.707z"/></svg>
+							</button>
 						</div>
 				</div>
 			</div>
-			<nav id="menu2">
-				<h4>Nikke ID's</h4>
-				<table id="charactersTable">
-					<thead>
-						<tr>
-							<th style="color:white;">ID</th>
-							<th style="color:white;">Name</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
-			</nav>
 		</div>
 			
 		<!-- Scripts -->

@@ -7,7 +7,7 @@
 
 	var	$window = $(window),
 		$body = $('body');
-		$iframe = $('iframe')
+		$iframe = $('iframe');
 
 	// Breakpoints.
 		breakpoints({

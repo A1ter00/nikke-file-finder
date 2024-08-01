@@ -265,7 +265,7 @@ function highlightRows() {
                 const secondColumn = row.querySelector("td:nth-child(2)");
                 const thirdColumn = row.querySelector("td:nth-child(3)");
                 const isSecondColumnExceeded = secondColumn ? secondColumn.textContent.length > 2 : false;
-                const isThirdColumnExceeded = thirdColumn ? thirdColumn.textContent.length > 32 : false;
+                const isThirdColumnExceeded = thirdColumn ? (thirdColumn.textContent.length > 32 && thirdColumn.textContent.length !== 64) : false;
 
                 if (!groupStarted) {
                     row.style.borderTop = "2px solid black";
@@ -312,4 +312,59 @@ function highlightRows() {
             }
         }
     });
+}
+
+function generateCheckboxes() {
+    const checkboxGroup = document.getElementById('checkboxGroup');
+    checkboxGroup.innerHTML = '';
+
+    for (const [key, _] of Object.entries(regexPatterns)) {
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.className = 'checkbox-container';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = key;
+        checkbox.checked = true; 
+
+        const label = document.createElement('label');
+        label.htmlFor = key;
+        label.textContent = key;
+
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(label);
+        checkboxGroup.appendChild(checkboxContainer);
+        checkbox.addEventListener('change', updateTableVisibility);
+    }
+}
+
+function generateSelector() {
+    const selector = document.getElementById('selector');
+    const options = ['All', ...Object.keys(regexPatterns), 'None'];
+
+    selector.innerHTML = '';
+
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        if (option === 'All') {
+            opt.selected = true; 
+        }
+        selector.appendChild(opt);
+    });
+    selector.disabled = true;
+}
+
+let goToTopBtn = document.getElementById("goToTopBtn");
+document.getElementById("resultContainer").addEventListener("scroll", function() {
+    if (this.scrollTop > 20) {
+        goToTopBtn.style.display = "block";
+    } else {
+        goToTopBtn.style.display = "none";
+    }
+});
+
+function scrollToTop() {
+    document.getElementById("resultContainer").scrollTo({ top: 0, behavior: 'smooth' });
 }

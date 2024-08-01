@@ -11,110 +11,57 @@
 		<div id="wrapper">
 			<div id="main">
 				<div class="inner">
-						<header id="header">
-							<a class="logo"><strong>Nikke File Finder</strong> by A1teri</a>
-							<ul class="icons">
-								<li><a href="#menu2" class="icon fa-user-circle"> Character ID'S</a></li>
-							</ul>
-						</header>
 						<div id="loading-overlay">
 							<div id="loading-spinner"></div>
 						</div>
-						<section>
-							<div class="content">
-								<ul class="actions">
-									<li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
-									<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
-								</ul>
-								<textarea id="textArea" style="resize: none;" readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
-							</div>
-						</section>
+						<section></section>
 						<div class="row gtr-uniform">
 							<div class="col-5-small">
-								<select  id="selector" disabled onchange="updateSelectorState()">
-									<option value="All" selected>All</option>
-									<option value="Aim">Aim</option>
-									<option value="Cover">Cover</option>
-									<option value="Standing">Standing</option>
-									<option value="Portrait(Full)">Portrait(Full)</option>
-									<option value="Portrait(Medium)">Portrait(Medium)</option>
-									<option value="Burst(Lobby)">Burst(Lobby)</option>
-									<option value="Burst(Battle)">Burst(Battle)</option>
-									<option value="SD-Model">SD-Model</option>
-									<option value="Voice">Voice</option>
-									<option value="Voice(MaxBond)">Voice(MaxBond)</option>
-									<option value="Voice(Title)">Voice(Title)</option>		
-									<option value="Background">Background</option>
-									<option value="EventsWallpaper">EventsWallpaper</option>				
-									<option value="None" >None</option>
-								</select>
-							</div>
-							<div class="col-4-small">
-								<button id="exportButton" onclick="exportTable()" disabled>Export Table</button>
+								<div class="tooltip">
+									<span class="tooltiptext">Upload<br>Addressables Folder</span>
+									<ul class="actions">
+										<li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
+										<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
+									</ul>
+								</div>
+								<textarea id="textArea" style="resize: none; display: none;"  readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
 							</div>
 							<div class="col-5-small">
-								<input type="text" id="idFilter" disabled placeholder="Filter by Name or ID">
+								<select  id="selector" disabled onchange="updateSelectorState()"></select>
 							</div>
 							<div class="col-4-small">
-								<button id="applyButton" onclick="applyFilter()" disabled>Apply Filter</button>
+								<button id="exportButton" onclick="exportTable()" disabled>Export List</button>
+							</div>
+							<div class="col-5-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Search by Name or ID</span>
+									<input type="text" id="idFilter" disabled placeholder="Search by Name or ID">
+								</div>
 							</div>
 							<div class="col-4-small">
-								<button id="clearButton" onclick="clearFilter()" disabled>Clear Filter</button>
+								<button id="applyButton" onclick="applyFilter()" disabled>Search</button>
+							</div>
+							<div class="col-4-small">
+								<button id="clearButton" onclick="clearFilter()" disabled>Clear</button>
 							</div>
 							<div class="col-8-small">
-								<input type="text" id="textArea2" readonly style="width: 150%;" placeholder="Portrait(Small) Bundle File"></input>
+								<div class="tooltip" style="width: 150%;">
+									<span class="tooltiptext">Portrait (Small) Bundle File</span>
+									<input type="text" id="textArea2" disabled readonly placeholder="Portrait (Small) Bundle File"></input>
+								</div>
 							</div>
-							<div class="col-12" id="checkboxGroup" style="visibility: hidden;">
-								<input type="checkbox" id="checkboxAim" checked>
-								<label for="checkboxAim">Aim</label>
-								<input type="checkbox" id="checkboxCover" checked>
-								<label for="checkboxCover">Cover</label>
-								<input type="checkbox" id="checkboxStanding" checked>
-								<label for="checkboxStanding">Standing</label>
-								<input type="checkbox" id="checkboxPortrait(Full)" checked>
-								<label for="checkboxPortrait(Full)">Portrait(Full)</label>
-								<input type="checkbox" id="checkboxPortrait(Medium)" checked>
-								<label for="checkboxPortrait(Medium)">Portrait(Medium)</label>
-								<input type="checkbox" id="checkboxBurst(Lobby)" checked>
-								<label for="checkboxBurst(Lobby)">Burst(Lobby)</label>
-								<input type="checkbox" id="checkboxBurst(Battle)" checked>
-								<label for="checkboxBurst(Battle)">Burst(Battle)</label>
-								<input type="checkbox" id="checkboxSD-Model" checked>
-								<label for="checkboxSD-Model">SD-Model</label>
-								<input type="checkbox" id="checkboxVoice" checked>
-								<label for="checkboxVoice">Voice</label>
-								<input type="checkbox" id="checkboxVoice(MaxBond)" checked>
-								<label for="checkboxVoice(MaxBond)">Voice(MaxBond)</label>
-								<input type="checkbox" id="checkboxVoice(Title)" checked>
-								<label for="checkboxVoice(Title)">Voice(Title)</label>
-								<input type="checkbox" id="checkboxBackground" checked>
-								<label for="checkboxBackground">Background</label>
-								<input type="checkbox" id="checkboxEventsWallpaper" checked>
-								<label for="checkboxEventsWallpaper">EventsWallpaper</label>
-							</div>
+							<div class="col-12" id="checkboxGroup" style="visibility: hidden;"></div>
 							<br>
 						</div>
 						<div class="row">
 							<div class="table-container table-container-scroll" id="resultContainer"></div>
-						</div>
-						
+							<button id="goToTopBtn" onclick="scrollToTop()" style="display: none;">
+								<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 6.414 7.293 7.293 1.414-1.414L12 3.586l-8.707 8.707 1.414 1.414L12 6.414z"/><path d="m3.293 18.293 1.414 1.414L12 12.414l7.293 7.293 1.414-1.414L12 9.586l-8.707 8.707z"/></svg>
+							</button>
+						</div>						
 					</div>
 				</div>
 			</div>
-			
-			<nav id="menu2">
-				<h4>Nikke ID's</h4>
-				<table id="charactersTable">
-					<thead>
-						<tr>
-							<th style="color:white;">ID</th>
-							<th style="color:white;">Name</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
-			</nav>
 		</div>
 
 		<!-- Scripts -->

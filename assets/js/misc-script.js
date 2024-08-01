@@ -136,7 +136,7 @@ document.getElementById('folderInput').addEventListener('change', async function
 
         let exportButtonDiv = document.getElementById('exportButtonDiv');
         let exportButton = document.createElement('button');
-        exportButton.textContent = 'Export Table';
+        exportButton.textContent = 'Export List';
         exportButton.addEventListener('click', exportTables);
         exportButtonDiv.appendChild(exportButton);
     }
@@ -239,7 +239,7 @@ document.getElementById('folderInput').addEventListener('change', async function
     function generateClearFilterButton() {
         let clearFilterButtonDiv = document.getElementById('clearFilterButtonDiv');
         let clearFilterButton = document.createElement('button');
-        clearFilterButton.textContent = 'Clear Filter';
+        clearFilterButton.textContent = 'Clear';
         clearFilterButton.addEventListener('click', function() {
             let searchInput = document.querySelector('#searchInputDiv input');
             searchInput.value = '';
@@ -252,7 +252,6 @@ document.getElementById('folderInput').addEventListener('change', async function
                 table.style.display = '';
             });
     
-            // Show only the table that corresponds to the selector
             let selector = document.getElementById('selector');
             let selectedType = selector.value;
             if (selectedType !== 'All') {
@@ -277,8 +276,6 @@ document.getElementById('folderInput').addEventListener('change', async function
             existingClearFilterButton.remove();
         }
     }
-
     clearClearFilterButton();
     generateClearFilterButton();
-
 });

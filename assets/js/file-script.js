@@ -15,6 +15,8 @@ const regexPatterns = {
 window.onload = function() {
     generateCheckboxes();
     generateSelector();
+	loadTextAreaData();
+	fetchData();
 };
 
 //Folder Reader
@@ -33,29 +35,32 @@ function readFolder(input) {
 					const matchIcon = fileContent.match(/icons-char-si\(hd\)_assets_all_(\w+)\.bundle/);
 
 					if (matchIcon) {
-							let word = matchIcon[1];
-							document.getElementById("textArea2").value = word;
-						}
+						let word = matchIcon[1];
+						document.getElementById("textArea2").value = word;
+					}
 
 					for (const key in regexPatterns) {
-							const regex = regexPatterns[key];
-							let match;
-							while ((match = regex.exec(fileContent)) !== null) {
-								matchedStrings.push(match[0]);
-							}
+						const regex = regexPatterns[key];
+						let match;
+						while ((match = regex.exec(fileContent)) !== null) {
+							matchedStrings.push(match[0]);
 						}
+					}
 
-						combinedText += matchedStrings.join('\n');
-						document.getElementById("textArea").value = combinedText;
-						
-						checkboxGroup.style.visibility = 'visible';
-						updateSelectorState();
-						loadingOverlay.style.display = 'none';
-					};
+					combinedText += matchedStrings.join('\n');
+					document.getElementById("textArea").value = combinedText;
+
+					checkboxGroup.style.visibility = 'visible';
+					updateSelectorState();
+					loadingOverlay.style.display = 'none';
+					saveTextAreaData();
+
+					loadingOverlay.style.display = 'none';
+				};
 				reader.readAsText(file);
 			}
 		}
-	} else{
+	} else {
 		loadingOverlay.style.display = 'none';
 	}
 }
@@ -69,12 +74,14 @@ function updateSelectorState() {
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
 	const textArea2 = document.getElementById("textArea2");
+	const nuke = document.getElementById("nukebtn");
 	exportButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	applyButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	clearButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	selector.disabled = textArea.value.trim() === "";
 	idFilter.disabled = textArea.value.trim() === "";
 	textArea2.disabled = textArea.value.trim() === "";
+	nuke.disabled = textArea.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
@@ -84,6 +91,34 @@ function updateSelectorState() {
 		applyFilter();
 	});
 	analyzeText();
+}
+
+function saveTextAreaData() {
+	const textAreaValue = document.getElementById("textArea").value;
+	const textArea2Value = document.getElementById("textArea2").value;
+
+	localStorage.setItem('textAreaData', textAreaValue);
+	localStorage.setItem('textArea2Data', textArea2Value);
+}
+
+function loadTextAreaData() {
+	const savedTextAreaData = localStorage.getItem('textAreaData');
+	const savedTextArea2Data = localStorage.getItem('textArea2Data');
+
+	if (savedTextAreaData && savedTextArea2Data !== null) {
+		document.getElementById("textArea").value = savedTextAreaData;
+		document.getElementById("textArea2").value = savedTextArea2Data;
+		checkboxGroup.style.visibility = 'visible';
+		updateSelectorState();
+	}
+}
+
+function nuke() {
+	localStorage.removeItem('textAreaData');
+	localStorage.removeItem('textArea2Data');
+	document.getElementById("textArea").value = '';
+	document.getElementById("textArea2").value = '';
+	location.reload();
 }
 
 //MAIN
@@ -107,7 +142,7 @@ function analyzeText() {
 			let rowsHtml = '';
 			while ((matches = regex.exec(text)) !== null) {
 				let tchar, char, variant, bundle;
-				if (key === "Burst(Lobby)" || key === "Burst(Battle)" || key === "Voice" || key === "Voice(MaxBond)" || key === "Voice(Title)") {
+				if (key === "Burst(Lobby)" || key === "Burst(Battle)") {
 					tchar = matches[1];
 					char = getFirstPartOfChar(tchar);
 					variant = getVariantFromChar(tchar);

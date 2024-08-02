@@ -1,39 +1,81 @@
-document.addEventListener('DOMContentLoaded', fetchData);
-var applyButton = document.getElementById("applyButton");
-document.getElementById('uploadFolder').addEventListener('click', function() {document.getElementById('folderInput').click();});
-document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {checkbox.addEventListener('change', updateTableVisibility);});
-document.addEventListener("keypress", function(event) {if (event.keyCode === 13) {applyButton.click();}});
+document.addEventListener('DOMContentLoaded', function() {
+    fetchData(); 
+
+    var applyButton = document.getElementById("applyButton");
+    var uploadFolder = document.getElementById('uploadFolder');
+    var folderInput = document.getElementById('folderInput');
+
+    if (uploadFolder && folderInput) {
+        uploadFolder.addEventListener('click', function() {
+            folderInput.click();
+        });
+    }
+
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTableVisibility);
+        });
+    }
+
+    if (applyButton) {
+        document.addEventListener("keypress", function(event) {
+            if (event.keyCode === 13) { 
+                applyButton.click();
+            }
+        });
+    }
+});
 
 // Fetch Nikke IDs
-let nikkeNameID = {};   
+let nikkeNameID = {};
 function fetchData() {
-    fetch('https://api.dotgg.gg/nikke/characters/id')
-        .then(response => response.json())
-        .then(data => {
-            displayData(data);
-            const processedData = {};
-            for (const [id, name] of Object.entries(data)) {
-                const paddedId = id < 100 ? `0${id}` : id;
-                processedData[paddedId] = name;
-            }
-            nikkeNameID = processedData;
-        });
+    const localStorageData = localStorage.getItem('textIDData');
+    
+    if (localStorageData) {
+        const data = JSON.parse(localStorageData);
+        displayData(data);
+        processFetchedData(data);
+    } else {
+        fetch('https://api.dotgg.gg/nikke/characters/id')
+            .then(response => response.json())
+            .then(data => {
+                displayData(data);
+                processFetchedData(data);
+                localStorage.setItem('textIDData', JSON.stringify(data));
+            });
+    }
+}
+
+function processFetchedData(data) {
+    const processedData = {};
+    for (const [id, name] of Object.entries(data)) {
+        const paddedId = id < 100 ? `0${id}` : id;
+        processedData[paddedId] = name;
+    }
+    nikkeNameID = processedData;
 }
 
 function displayData(data) {
     const tableBody = document.querySelector('#charactersTable tbody');
-    tableBody.innerHTML = ''; 
+    if (tableBody) {
+        tableBody.innerHTML = ''; 
 
-    for (const id in data) {
-        if (data.hasOwnProperty(id)) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${id}</td>
-                <td>${data[id]}</td>
-            `;
-            tableBody.appendChild(row);
+        if (data && typeof data === 'object') { 
+            for (const id in data) {
+                if (data.hasOwnProperty(id)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${id}</td>
+                        <td>${data[id]}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            }
+        } else {
+            console.error('Invalid data format');
         }
-    }
+    } 
 }
 
 function loadPage(page) {
@@ -357,14 +399,22 @@ function generateSelector() {
 }
 
 let goToTopBtn = document.getElementById("goToTopBtn");
-document.getElementById("resultContainer").addEventListener("scroll", function() {
-    if (this.scrollTop > 20) {
-        goToTopBtn.style.display = "block";
-    } else {
-        goToTopBtn.style.display = "none";
+document.addEventListener("DOMContentLoaded", function() {
+    var resultContainer = document.getElementById("resultContainer");
+    var goToTopBtn = document.getElementById("goToTopBtn"); 
+    
+    if (resultContainer) {
+        resultContainer.addEventListener("scroll", function() {
+            if (this.scrollTop > 20) {
+                goToTopBtn.style.display = "block";
+            } else {
+                goToTopBtn.style.display = "none";
+            }
+        });
     }
 });
 
 function scrollToTop() {
     document.getElementById("resultContainer").scrollTo({ top: 0, behavior: 'smooth' });
 }
+

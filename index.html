@@ -16,8 +16,9 @@
 				<div>
 					<a class="lbl-title">Nikke File Finder</a>
 					<a class="lbl-author">by A1teri</a>
+					<a class="active icon solid fa-home lbl-link" id="homeLink" onclick="navClick('homeLink', 'home.html')"> - Home</a>
 					<a class="lbl-page">Finders</a>
-					<a style="display: none;" class="icon solid fa-upload lbl-link" id="uploadLink" class="active" onclick="navClick('uploadLink', 'upload-file.html')"> - Upload Files</a>
+					<a style="display: none;" class="icon solid fa-upload lbl-link" id="uploadLink" onclick="navClick('uploadLink', 'upload.html')"> - Upload Files</a>
 					<a class="icon solid fa-bars lbl-link" id="fileFinderLink" onclick="navClick('fileFinderLink', 'file-finder.html')"> - Common Files</a>
 					<a class="icon solid fa-spinner lbl-link" id="physicsFinderLink" onclick="navClick('physicsFinderLink', 'physics-finder.html')"> - Physics Files</a>
 					<a class="icon solid fa-music lbl-link" id="voiceFinderLink" onclick="navClick('voiceFinderLink', 'voice-finder.html')"> - Voice Files</a>
@@ -56,13 +57,13 @@
 						<ul>
 							<li>%USERPROFILE%\AppData\LocalLow\com_proximabeta\NIKKE\com.unity.addressables</li>
 						</ul>
-						<h5><li>Mod Directory</li></h5>
-						<ul>
-							<li>%USERPROFILE%\AppData\LocalLow\Unity\com_proximabeta_NIKKE\<b style="color: #f56a6a;">HERE</b></li>
-						</ul>
 						<h5><li>Voice Directory</li></h5>
 						<ul>
-							<li>%USERPROFILE%\Appdata\LocalLow\com_proximabeta\NIKKE\saus</li>
+							<li>%USERPROFILE%\Appdata\LocalLow\com_proximabeta\NIKKE\saus\</li>
+						</ul>
+						<h5><li>Mod Directory</li></h5>
+						<ul>
+							<li>%USERPROFILE%\AppData\LocalLow\Unity\com_proximabeta_NIKKE\</li>
 						</ul>
 					</ol>
 					<h4>Reminders</h4>
@@ -74,8 +75,6 @@
 					</p>
 					<h4>Tips</h4>
 						<p>Every update, you can follow the steps mentioned in the <i>Reminders</i> section then make a backup of your addressables to skip repeating the said process</p>
-					<h4>About</h4>
-						<p>This is just a simple webtool to help locate Nikke game files.</p>
 				</nav>
 				<nav id="menu2">
 					<h4>Nikke ID's</h4>

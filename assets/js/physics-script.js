@@ -8,6 +8,7 @@ const regexPatterns = {
 window.onload = function() {
     generateCheckboxes();
     generateSelector();
+	loaddecodedData();
 };
 
 //Folder Reader
@@ -24,10 +25,10 @@ function readFolder(input) {
 						let fileContent = e.target.result;
 						const matchKeyData = fileContent.match(/"m_KeyDataString":\s*"([^"]+)"/);
 						const matchSpinePhysics = fileContent.match(/spinephysicssettings_assets_all_([a-zA-Z0-9]+)|spineinternal_assets_all_([^"]+).bundle","{UnityEngine.AddressableAssets.Addressables.RuntimePath}\\\\\\\\StandaloneWindows64\\\\\\\\mods\\\\\\\\([a-zA-Z0-9]+)/);
-						if (matchSpinePhysics && document.getElementById("textArea2")) {
+						if (matchSpinePhysics && document.getElementById("txtphysics")) {
 							let word = matchSpinePhysics[1] || matchSpinePhysics[3];
 							if (word && word.length !== 0) {
-								document.getElementById("textArea2").value = word;
+								document.getElementById("txtphysics").value = word;
 								if (matchKeyData) {
 									let longString = matchKeyData[1];
 									combinedText += longString + delimiter; 
@@ -37,6 +38,7 @@ function readFolder(input) {
 							}
 							checkboxGroup.style.visibility = 'visible';
 							updateSelectorState();
+							savedecodedData();
 						}
 					};
 					reader.readAsText(file);
@@ -75,13 +77,15 @@ function updateSelectorState() {
 	const clearButton = document.getElementById("clearButton");
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
-	const textArea2 = document.getElementById("textArea2");
+	const txtphysics = document.getElementById("txtphysics");
+	const nuke = document.getElementById("nukebtn");
 	exportButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	applyButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	clearButton.disabled = selector.value === "None" || decoded.value.trim() === "";
 	selector.disabled = decoded.value.trim() === "";
 	idFilter.disabled = decoded.value.trim() === "";
-	textArea2.disabled = decoded.value.trim() === "";
+	txtphysics.disabled = decoded.value.trim() === "";
+	nuke.disabled = decoded.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
@@ -91,6 +95,34 @@ function updateSelectorState() {
 		applyFilter();
 	});
 	analyzeText();
+}
+
+function savedecodedData() {
+	const decodedValue = document.getElementById("decoded").value;
+	const txtphysicsValue = document.getElementById("txtphysics").value;
+
+	localStorage.setItem('decodedData', decodedValue);
+	localStorage.setItem('txtphysicsData', txtphysicsValue);
+}
+
+function loaddecodedData() {
+	const saveddecodedData = localStorage.getItem('decodedData');
+	const savedtxtphysicsData = localStorage.getItem('txtphysicsData');
+
+	if (saveddecodedData && savedtxtphysicsData !== null) {
+		document.getElementById("txtphysics").value = savedtxtphysicsData;
+		document.getElementById("decoded").value = saveddecodedData;
+		checkboxGroup.style.visibility = 'visible';
+		updateSelectorState();
+	}
+}
+
+function nuke() {
+	localStorage.removeItem('decodedData');
+	localStorage.removeItem('txtphysicsData');
+	document.getElementById("decoded").value = '';
+	document.getElementById("txtphysics").value = '';
+	location.reload();
 }
 
 //MAIN		

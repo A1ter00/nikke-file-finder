@@ -8,4 +8,4 @@ function navClick(navId, pageName) {
     loadPage(pageName);
 }
 
-document.addEventListener('DOMContentLoaded', function() {navClick('fileFinderLink', 'file-finder.html');});
+document.addEventListener('DOMContentLoaded', function() {navClick('homeLink', 'home.html');});

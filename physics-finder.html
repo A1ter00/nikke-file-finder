@@ -21,7 +21,7 @@
 										<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
 									</ul>
 								</div>
-								<textarea id="decoded" style="resize: none; display: none;"  readonly rows="1" cols="120" oninput="updateSelectorState()">Upload File or Folder</textarea>
+								<textarea id="decoded" style="resize: none; display: none;"  readonly rows="1" cols="120" oninput="updateSelectorState()"></textarea>
 							</div>
 							<div class="col-5-small">
 								<select  id="selector" disabled onchange="updateSelectorState()"></select>
@@ -44,8 +44,11 @@
 							<div class="col-8-small">
 								<div class="tooltip" style="width: 150%;">
 									<span class="tooltiptext">Physics Bundle File</span>
-									<input type="text" id="textArea2" disabled readonly placeholder="Physics Bundle File"></input>
+									<input type="text" id="txtphysics" disabled readonly placeholder="Physics Bundle File"></input>
 								</div>
+							</div>
+							<div class="col-4-small">
+								<button id="nukebtn" style="margin-left: 50%;" onclick="nuke()" disabled>Delete Saved Data</button>
 							</div>
 							<div class="col-12" id="checkboxGroup" style="visibility: hidden;"></div>
 						</div>

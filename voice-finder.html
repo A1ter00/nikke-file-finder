@@ -7,9 +7,9 @@
 		<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    	<script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js"></script> <!-- SQLite library -->
+    	<script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js"></script>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload"> 
 		<div id="wrapper">
 			<div id="main">
 				<div class="inner">
@@ -46,6 +46,9 @@
 							</div>
 							<div class="col-4-small">
 								<button id="clearButton" onclick="clearFilter()" disabled>Clear</button>
+							</div>
+							<div class="col-4-small">
+								<button id="nukebtn" onclick="nuke()" disabled>Delete Saved Data</button>
 							</div>
 							<div class="col-12" id="checkboxGroup" style="visibility: hidden;"></div>
 							<br>

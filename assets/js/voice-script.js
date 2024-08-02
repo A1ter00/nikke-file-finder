@@ -22,6 +22,7 @@ const regexPatterns = {
 window.onload = function() {
     generateCheckboxes();
     generateSelector();
+	loadTextAreaData();
 };
 
 //Folder Reader
@@ -60,6 +61,7 @@ async function readFolder(input) {
     checkboxGroup.style.visibility = 'visible';
     analyzeText();
 	updateSelectorState();
+    saveTextAreaData();
 	loadingOverlay.style.display = 'none';
 }
 
@@ -72,12 +74,14 @@ function updateSelectorState() {
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
 	const textArea2 = document.getElementById("textArea2");
+    const nuke = document.getElementById("nukebtn");
 	exportButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	applyButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	clearButton.disabled = selector.value === "None" || textArea.value.trim() === "";
 	selector.disabled = textArea.value.trim() === "";
 	idFilter.disabled = textArea.value.trim() === "";
 	textArea2.disabled = textArea.value.trim() === "";
+    nuke.disabled = textArea.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
@@ -87,6 +91,34 @@ function updateSelectorState() {
 		applyFilter();
 	});
 	analyzeText();
+}
+
+function saveTextAreaData() {
+	const textAreaVoiceValue = document.getElementById("textArea").value;
+	//const textArea2Value = document.getElementById("textArea2").value;
+    localStorage.removeItem('textAreaVoiceData');
+	localStorage.setItem('textAreaVoiceData', textAreaVoiceValue);
+	//localStorage.setItem('textArea2Data', textArea2Value);
+}
+
+function loadTextAreaData() {
+	const savedTextAreaVoiceData = localStorage.getItem('textAreaVoiceData');
+	//const savedTextArea2Data = localStorage.getItem('textArea2Data');
+
+	if (savedTextAreaVoiceData /*&& savedTextArea2Data*/ !== null) {
+		document.getElementById("textArea").value = savedTextAreaVoiceData;
+		//document.getElementById("textArea2").value = savedTextArea2Data;
+		checkboxGroup.style.visibility = 'visible';
+		updateSelectorState();
+	}
+}
+
+function nuke() {
+	localStorage.removeItem('textAreaVoiceData');
+	//localStorage.removeItem('textArea2Data');
+	document.getElementById("textArea").value = '';
+	//document.getElementById("textArea2").value = '';
+	location.reload();
 }
 
 //MAIN

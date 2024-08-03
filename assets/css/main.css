@@ -733,7 +733,7 @@ button,
   .button.primary {
     background-color: #f56a6a;
     box-shadow: none;
-    color: rgb(233, 236, 239)!important; }
+    color: rgb(255, 255, 255)!important; }
     input[type="submit"].primary:hover,
     input[type="reset"].primary:hover,
     input[type="button"].primary:hover,

@@ -1,15 +1,11 @@
 //Syntaxes
 const regexPatterns = {
-	Aim: /spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_hd\.bundle": "(\w+)"/g,
-	Cover: /spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_hd\.bundle": "(\w+)"/g,
-	Standing: /spinestandingcharactergroup\(hd\)_assets_spine\/standing\/(\w+)\/(\w+)_hd\.bundle": "(\w+)"/g,
-	'Portrait(Full)': /icons-char-full\(hd\)_assets_(\w+)_(\w+)\.bundle": "(\w+)"/g,
-	'Portrait(Medium)': /icons-char-mi\(hd\)_assets_mi_(\w+)_(\w+)_s\.bundle": "(\w+)"/g,
-	'Burst(Lobby)': /livewallpaperprefabs_assets_livewallpaper\/eventscene_(\w+)_cutscene\.bundle": "(\w+)"/g,
-	'Burst(Battle)': /spotskillcutscene_assets_(\w+)_cut_scene\.bundle": "(\w+)"/g,
-	'SD-Model' : /sdcharacters_assets_(\w+)_(\w+)_var\.bundle": "(\w+)"/g,
-	Background: /scenariobackground\(hd\)_assets_(\w+)\.bundle": "(\w+)"/g,
-	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)\.bundle": "(\w+)"/g,
+	Aim: /spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_sd\.bundle": "(\w+)"/g,
+	Cover: /spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_sd\.bundle": "(\w+)"/g,
+	Standing: /spinestandingcharactergroup\(sd\)_assets_spine\/standing\/(\w+)\/(\w+)_sd\.bundle": "(\w+)"/g,
+	'Portrait(Full)': /icons-char-full\(sd\)_assets_(\w+)_(\w+)\.bundle": "(\w+)"/g,
+	'Portrait(Medium)': /icons-char-mi\(sd\)_assets_mi_(\w+)_(\w+)_s\.bundle": "(\w+)"/g,
+	Background: /scenariobackground\(sd\)_assets_(\w+)\.bundle": "(\w+)"/g,
 };
 
 
@@ -17,7 +13,7 @@ window.onload = function() {
     generateCheckboxes();
     generateSelector();
 	loadTextAreaData();
-	fetchData();
+	fetcsdata();
 };
 
 //Folder Reader
@@ -33,7 +29,7 @@ function readFolder(input) {
 				reader.onload = function (e) {
 					const fileContent = e.target.result;
 					const matchedStrings = [];
-					const matchIcon = fileContent.match(/icons-char-si\(hd\)_assets_all\.bundle": "(\w+)"/);
+					const matchIcon = fileContent.match(/icons-char-si\(sd\)_assets_all\.bundle": "(\w+)"/);
 
 					if (matchIcon) {
 						let word = matchIcon[1];
@@ -98,13 +94,13 @@ function saveTextAreaData() {
 	const textAreaValue = document.getElementById("textArea").value;
 	const textArea2Value = document.getElementById("textArea2").value;
 
-	localStorage.setItem('textAreaData', textAreaValue);
-	localStorage.setItem('textArea2Data', textArea2Value);
+	localStorage.setItem('textAreaData2', textAreaValue);
+	localStorage.setItem('textArea2Data2', textArea2Value);
 }
 
 function loadTextAreaData() {
-	const savedTextAreaData = localStorage.getItem('textAreaData');
-	const savedTextArea2Data = localStorage.getItem('textArea2Data');
+	const savedTextAreaData = localStorage.getItem('textAreaData2');
+	const savedTextArea2Data = localStorage.getItem('textArea2Data2');
 
 	if (savedTextAreaData && savedTextArea2Data !== null) {
 		document.getElementById("textArea").value = savedTextAreaData;
@@ -115,8 +111,8 @@ function loadTextAreaData() {
 }
 
 function nuke() {
-	localStorage.removeItem('textAreaData');
-	localStorage.removeItem('textArea2Data');
+	localStorage.removeItem('textAreaData2');
+	localStorage.removeItem('textArea2Data2');
 	document.getElementById("textArea").value = '';
 	document.getElementById("textArea2").value = '';
 	location.reload();

@@ -83,6 +83,8 @@ document.getElementById('folderInput2').addEventListener('change', function(even
 function majornuke() {
 	localStorage.removeItem('textAreaData');
 	localStorage.removeItem('textArea2Data');
+    localStorage.removeItem('textAreaData2');
+	localStorage.removeItem('textArea2Data2');
     localStorage.removeItem('decodedData');
 	localStorage.removeItem('txtphysicsData');
     localStorage.removeItem('textAreaVoiceData');

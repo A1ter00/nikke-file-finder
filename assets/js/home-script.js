@@ -2,10 +2,12 @@ window.onload = function() {
 	loadTextAreaData();
 };
 
+/*
 function saveTextAreaData() {
 	const textIDValue = document.getElementById("textArea").value;
 	localStorage.setItem('textIDData', textIDValue);
 }
+
 
 function loadTextAreaData() {
 	const savedTextIDData = localStorage.getItem('textIDData');
@@ -14,6 +16,7 @@ function loadTextAreaData() {
 		document.getElementById("textArea").value = savedTextIDData;
 	}
 }
+*/
 
 document.getElementById('uploadFolder2').addEventListener('click', function() {
     document.getElementById('folderInput2').click();
@@ -93,11 +96,13 @@ function majornuke() {
     parent.location.href = 'index.html';
 }
 
+/*
 function nuke() {
     localStorage.removeItem('textIDData');
     parent.location.href = 'index.html';
     //popup();
 }
+*/
 
 function popup() {
     var popup = document.getElementById('popup');

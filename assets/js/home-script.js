@@ -88,8 +88,8 @@ function majornuke() {
 	localStorage.removeItem('textArea2Data');
     localStorage.removeItem('textAreaData2');
 	localStorage.removeItem('textArea2Data2');
-    localStorage.removeItem('decodedData');
-	localStorage.removeItem('txtphysicsData');
+    localStorage.removeItem('textAreaPhysicsData');
+	localStorage.removeItem('textAreaPhysics2Data');
     localStorage.removeItem('textAreaVoiceData');
     localStorage.removeItem('textIDData');
 	//location.reload();

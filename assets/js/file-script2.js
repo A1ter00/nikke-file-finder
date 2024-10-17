@@ -13,7 +13,7 @@ window.onload = function() {
     generateCheckboxes();
     generateSelector();
 	loadTextAreaData();
-	fetcsdata();
+	fetchData();
 };
 
 //Folder Reader

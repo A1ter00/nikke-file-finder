@@ -1,91 +1,81 @@
-//Syntax
+//Syntaxes
 const regexPatterns = {
-	'Aim(Physics)': /spine\/physics\/(\w+)\/(\w+)\/aim (\w{1,32})/g,
-	'AimShooting(Physics)': /spine\/physics\/(\w+)\/(\w+)\/aim-shooting (\w{1,32})/g,
-	'Cover(Physics)': /spine\/physics\/(\w+)\/(\w+)\/cover (\w{1,32})/g,
+	'Aim(Physics)': /spine\/physics\/(\w+)\/(\w+)\/aim": "(\w+)"/g,
+	'AimShooting(Physics)': /spine\/physics\/(\w+)\/(\w+)\/aim-shooting": "(\w+)"/g,
+	'Cover(Physics)': /spine\/physics\/(\w+)\/(\w+)\/cover": "(\w+)"/g,
 };
+
 
 window.onload = function() {
     generateCheckboxes();
     generateSelector();
-	loaddecodedData();
+	loadTextAreaData();
+	fetchData();
 };
 
 //Folder Reader
 function readFolder(input) {
+	let loadingOverlay = document.getElementById('loading-overlay');
+	loadingOverlay.style.display = 'block';
 	const files = input.files;
-	let combinedText = "";
-	let delimiter = "|";
 	if (files.length > 0) {
+		let combinedText = "";
 		for (const file of files) {
 			if (file.name.toLowerCase().endsWith('.json')) {
-				if (file.size >= 0 && file.size <= 25000000) { // kek
-					const reader = new FileReader();
-					reader.onload = function (e) {
-						let fileContent = e.target.result;
-						const matchKeyData = fileContent.match(/"m_KeyDataString":\s*"([^"]+)"/);
-						const matchSpinePhysics = fileContent.match(/spinephysicssettings_assets_all_([a-zA-Z0-9]+)|spineinternal_assets_all_([^"]+).bundle","{UnityEngine.AddressableAssets.Addressables.RuntimePath}\\\\\\\\StandaloneWindows64\\\\\\\\mods\\\\\\\\([a-zA-Z0-9]+)/);
-						if (matchSpinePhysics && document.getElementById("txtphysics")) {
-							let word = matchSpinePhysics[1] || matchSpinePhysics[3];
-							if (word && word.length !== 0) {
-								document.getElementById("txtphysics").value = word;
-								if (matchKeyData) {
-									let longString = matchKeyData[1];
-									combinedText += longString + delimiter; 
-									const decoded = decodeBase64(combinedText);
-									document.getElementById('decoded').value = decoded;
-								}
-							}
-							checkboxGroup.style.visibility = 'visible';
-							updateSelectorState();
-							savedecodedData();
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					const fileContent = e.target.result;
+					const matchedStrings = [];
+					const matchIcon = fileContent.match(/spinephysicssettings_assets_all.bundle": "(\w+)"/);
+
+					if (matchIcon) {
+						let word = matchIcon[1];
+						document.getElementById("textArea2").value = word;
+					}
+
+					for (const key in regexPatterns) {
+						const regex = regexPatterns[key];
+						let match;
+						while ((match = regex.exec(fileContent)) !== null) {
+							matchedStrings.push(match[0]);
 						}
-					};
-					reader.readAsText(file);
-				} else {
-				}
-			} else {
+					}
+
+					combinedText += matchedStrings.join('\n');
+					document.getElementById("textArea").value = combinedText;
+
+					checkboxGroup.style.visibility = 'visible';
+					updateSelectorState();
+					loadingOverlay.style.display = 'none';
+					saveTextAreaData();
+
+					loadingOverlay.style.display = 'none';
+				};
+				reader.readAsText(file);
 			}
 		}
+	} else {
+		loadingOverlay.style.display = 'none';
 	}
-}
-
-//Base64 Decoder
-function decodeBase64(encodedInput) {
-	const longStrings = encodedInput.split('|');
-	let decoded = ''
-	for (const longString of longStrings) {
-		decoded += atob(longString).replace(/[\x00-\x1F\x7F]/g, ""); 
-	}
-	const matchedStrings = [];
-	for (const key in regexPatterns) {
-		const regex = regexPatterns[key];
-		let match;
-		while ((match = regex.exec(decoded)) !== null) {
-			matchedStrings.push(match[0]);
-		}
-	}
-	decoded = matchedStrings.join('\n');
-	return decoded;
 }
 
 function updateSelectorState() {
-	const decoded = document.getElementById("decoded");
+	const textArea = document.getElementById("textArea");
 	const selector = document.getElementById("selector");
 	const exportButton = document.getElementById("exportButton");
 	const applyButton = document.getElementById("applyButton");
 	const clearButton = document.getElementById("clearButton");
 	const checkboxGroup = document.getElementById('checkboxGroup');
 	const idFilter = document.getElementById("idFilter");
-	const txtphysics = document.getElementById("txtphysics");
+	const textArea2 = document.getElementById("textArea2");
 	const nuke = document.getElementById("nukebtn");
-	exportButton.disabled = selector.value === "None" || decoded.value.trim() === "";
-	applyButton.disabled = selector.value === "None" || decoded.value.trim() === "";
-	clearButton.disabled = selector.value === "None" || decoded.value.trim() === "";
-	selector.disabled = decoded.value.trim() === "";
-	idFilter.disabled = decoded.value.trim() === "";
-	txtphysics.disabled = decoded.value.trim() === "";
-	nuke.disabled = decoded.value.trim() === "";
+	exportButton.disabled = selector.value === "None" || textArea.value.trim() === "";
+	applyButton.disabled = selector.value === "None" || textArea.value.trim() === "";
+	clearButton.disabled = selector.value === "None" || textArea.value.trim() === "";
+	selector.disabled = textArea.value.trim() === "";
+	idFilter.disabled = textArea.value.trim() === "";
+	textArea2.disabled = textArea.value.trim() === "";
+	nuke.disabled = textArea.value.trim() === "";
 	selector.addEventListener('change', function() {
 		if (selector.value === 'All') {
 			checkboxGroup.style.visibility = 'visible';
@@ -97,41 +87,41 @@ function updateSelectorState() {
 	analyzeText();
 }
 
-function savedecodedData() {
-	const decodedValue = document.getElementById("decoded").value;
-	const txtphysicsValue = document.getElementById("txtphysics").value;
+function saveTextAreaData() {
+	const textAreaValue = document.getElementById("textArea").value;
+	const textArea2Value = document.getElementById("textArea2").value;
 
-	localStorage.setItem('decodedData', decodedValue);
-	localStorage.setItem('txtphysicsData', txtphysicsValue);
+	localStorage.setItem('textAreaPhysicsData', textAreaValue);
+	localStorage.setItem('textAreaPhysics2Data', textArea2Value);
 }
 
-function loaddecodedData() {
-	const saveddecodedData = localStorage.getItem('decodedData');
-	const savedtxtphysicsData = localStorage.getItem('txtphysicsData');
+function loadTextAreaData() {
+	const savedTextAreaData = localStorage.getItem('textAreaPhysicsData');
+	const savedTextArea2Data = localStorage.getItem('textAreaPhysics2Data');
 
-	if (saveddecodedData && savedtxtphysicsData !== null) {
-		document.getElementById("txtphysics").value = savedtxtphysicsData;
-		document.getElementById("decoded").value = saveddecodedData;
+	if (savedTextAreaData && savedTextArea2Data !== null) {
+		document.getElementById("textArea").value = savedTextAreaData;
+		document.getElementById("textArea2").value = savedTextArea2Data;
 		checkboxGroup.style.visibility = 'visible';
 		updateSelectorState();
 	}
 }
 
 function nuke() {
-	localStorage.removeItem('decodedData');
-	localStorage.removeItem('txtphysicsData');
-	document.getElementById("decoded").value = '';
-	document.getElementById("txtphysics").value = '';
+	localStorage.removeItem('textAreaPhysicsData');
+	localStorage.removeItem('textAreaPhysics2Data');
+	document.getElementById("textArea").value = '';
+	document.getElementById("textArea2").value = '';
 	location.reload();
 }
 
-//MAIN		
+//MAIN
 function analyzeText() {
-	const text = document.getElementById("decoded").value;
+	const text = document.getElementById("textArea").value;
 	const selector = document.getElementById("selector").value;
 	const resultContainer = document.getElementById("resultContainer");
-	resultContainer.innerHTML = "";
 	if (selector === "All") {
+		resultContainer.innerHTML = "";
 		for (const key in regexPatterns) {
 			const regex = regexPatterns[key];
 			const resultTable = document.createElement("table");
@@ -139,42 +129,66 @@ function analyzeText() {
 			resultContainer.appendChild(resultTable);
 			const resultBody = resultTable.querySelector("tbody");
 			let matches;
-			let rows = [];
-			
+			let rowsHtml = '';
 			while ((matches = regex.exec(text)) !== null) {
-			let char = matches[1];
-			let variant = matches[2];
-				let bundle = matches[3];
-				rows.push({ char, variant, bundle });
+				let char, variant, bundle;
+					char = matches[1];
+					variant = matches[2];
+					bundle = matches[3];
+					rowsHtml += `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>`;
 			}
-			rows.sort((a, b) => a.char - b.char || a.variant - b.variant);
-				rows.forEach(row => {
-				let charWithPrefix = 'c' + row.char;
-				resultBody.innerHTML += `<tr><td>${charWithPrefix}</td><td>${row.variant}</td><td>${row.bundle}</td></tr>`;
-			});
+			const sortedRows = rowsHtml.split('</tr>')
+				.filter(row => row.trim() !== '')
+				.sort((a, b) => {
+					const aID = a.split('</td>')[0].split('<td>')[1];
+					const bID = b.split('</td>')[0].split('<td>')[1];
+					const aVer = a.split('</td>')[1].split('<td>')[1];
+					const bVer = b.split('</td>')[1].split('<td>')[1];
+					if (aID !== bID) {
+						return aID.localeCompare(bID);
+					} else {
+						return aVer.localeCompare(bVer);
+					}
+				})
+				.join('</tr>');
+			resultBody.innerHTML = sortedRows;
 			resultTable.innerHTML += `<caption>${key}</caption>`;
 		}
 	} else if (selector !== "None") {
 		const regex = regexPatterns[selector];
 		const resultTable = document.createElement("table");
 		resultTable.innerHTML = `<thead><tr><th>ID</th><th>Ver</th><th>Container</th></tr></thead><tbody></tbody>`;
+		resultContainer.innerHTML = "";
 		resultContainer.appendChild(resultTable);
 		const resultBody = resultTable.querySelector("tbody");
 		let matches;
-		let rows = [];
-		
+		let rowsHtml = '';
 		while ((matches = regex.exec(text)) !== null) {
-			let char = matches[1];
-			let variant = matches[2];
-			let bundle = matches[3];
-			rows.push({ char, variant, bundle });
+			let char, variant, bundle;
+				char = matches[1];
+				variant = matches[2];
+				bundle = matches[3];
+			rowsHtml += `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>`;
 		}
-		rows.sort((a, b) => a.char - b.char || a.variant - b.variant);
-		rows.forEach(row => {
-		let charWithPrefix = 'c' + row.char;
-		resultBody.innerHTML += `<tr><td>${charWithPrefix}</td><td>${row.variant}</td><td>${row.bundle}</td></tr>`;
-		});
+		const sortedRows = rowsHtml.split('</tr>')
+			.filter(row => row.trim() !== '')
+			.sort((a, b) => {
+				const aID = a.split('</td>')[0].split('<td>')[1];
+				const bID = b.split('</td>')[0].split('<td>')[1];
+				const aVer = a.split('</td>')[1].split('<td>')[1];
+				const bVer = b.split('</td>')[1].split('<td>')[1];
+				if (aID !== bID) {
+					return aID.localeCompare(bID);
+				} else {
+					return aVer.localeCompare(bVer);
+				}
+			})
+			.join('</tr>');
+		resultBody.innerHTML = sortedRows;
 		resultTable.innerHTML += `<caption>${selector}</caption>`;
+	} else {
+		resultContainer.innerHTML = "";
 	}
 	highlightRows();
 }
+

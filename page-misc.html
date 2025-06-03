@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Miscellaneous Finder</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<div id="main">
+				<div class="inner">
+						<div id="loading-overlay">
+							<div id="loading-spinner"></div>
+						</div>
+						<section></section>
+						<div class="row gtr-uniform">
+							<div class="col-5-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Upload<br>Addressables Folder</span>
+									<ul class="actions">
+										<li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
+										<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
+									</ul>
+								</div>
+								<textarea id="textArea" style="resize: none; display: none;" disabled readonly rows="1" cols="120" oninput="updateSelectorState()"></textarea>
+							</div>
+							<div class="col-5-small">
+								<select id="selector" disabled>
+									<option value="" disabled selected>All</option>
+								</select>
+							</div>
+							<div class="col-4-small">
+								<button id="exportButton" onclick="exportTable()" disabled>Export List</button>
+							</div>
+							<div class="col-5-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Search by Name or ID</span>
+									<input type="text" id="idFilter"  placeholder="Search by Name or ID">
+								</div>
+							</div>
+							<div class="col-4-small">
+								<button id="applyButton" onclick="applyFilter()" disabled>Search</button>
+							</div>
+							<div class="col-4-small">
+								<button id="clearButton" onclick="clearFilter()" disabled>Clear</button>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="table-container table-container-scroll2" id="resultContainer"></div>
+							<button id="goToTopBtn" onclick="scrollToTop()" style="display: none;">
+								<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 6.414 7.293 7.293 1.414-1.414L12 3.586l-8.707 8.707 1.414 1.414L12 6.414z"/><path d="m3.293 18.293 1.414 1.414L12 12.414l7.293 7.293 1.414-1.414L12 9.586l-8.707 8.707z"/></svg>
+							</button>
+						</div>
+				</div>
+			</div>
+		</div>
+			
+		<!-- Scripts -->
+		<script src="assets/js/script-misc.js"></script>
+		<script src="assets/js/script-main.js"></script>
+	</body>
+</html>

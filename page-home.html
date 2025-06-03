@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nikke File Finder</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
+		<link rel="stylesheet" href="assets/css/main.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<div id="main">
+				<div class="inner">
+						<div id="loading-overlay">
+							<div id="loading-spinner"></div>
+						</div>
+						<section>
+                            <br>
+                            <h2>Welcome!</h2>
+                            <p>
+                                This is just a simple webtool to help locate Nikke game files.<br>
+                                If you're unfamiliar with how to use this tool, please check out <b style="color: #e2212f;">How to Use</b> in the navigation bar.
+                            </p>
+                            <h2>Finders</h2>
+                            <p><b style="font-weight: 1000;">Common Files</b><br>
+                                - This tool can be used to locate commonly used games files, such as : 
+                                Aim / Cover / Standing / Portraits / Burst / SD-Model / Background / etc.<br>
+                                - Most of these files are located in the <b>'Mod'</b> folders at: 
+                                <a>%USERPROFILE%\AppData\LocalLow\Unity\com_proximabeta_NIKKE\</a>.<br>
+                                - HD = High quality / SD = Low quality
+                            </p>
+                            <p><b style="font-weight: 1000;">Physics Files</b><br>
+                                - This tool is specifically designed to locate the <b>'Physics Bundle File'</b>, which contains all character physics data.<br>
+                                - <b>'Containers'</b> refer to directories within the Physics Bundle File and are not actual files found in the mod folder.
+                            </p>
+                            <p><b style="font-weight: 1000;">Voice Files</b><br>
+                                - This tool is designed to locate voice-related files, including :  
+                                Character Voices / Voices (Max Bond) / Title screen Voices.
+                            </p>
+                            <p><b style="font-weight: 1000;">Manual Search</b><br>
+                                - This tool helps locate game files not covered by the other finders.<br>
+                            </p>
+                            <h2>Options</h2>
+                            <!--
+                            <div class="row gtr-uniform">
+                                <div class="col-5-small">
+                                    <ul class="actions">
+                                        <li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder2">Upload Character ID's</a></li>
+                                        <input type="file" id="folderInput2" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
+                                    </ul>
+                                <textarea id="textArea" style="display: none;"  readonly rows="1" cols="120" oninput="updateSelectorState()"></textarea>
+                                </div>
+                                <div class="col-5-small">
+                                    <button id="nukebtn" onclick="nuke()">Clear Character ID's</button>
+                                </div>
+                            </div>
+                            <p>
+                                - By default, <b>Character ID's</b> only include playable characters. To include every character in the game, you need to upload the <b>CharacterSearchTable.Iss</b> file.<br>
+                                - The easiest way to do this is by uploading your <b>NIKKE</b> folder, which is located at : <a>%USERPROFILE%\Appdata\LocalLow\com_proximabeta\NIKKE\</a>
+                            </p>
+                            -->
+                            <div class="col-5-small">
+								<button id="majornukebtn" onclick="majornuke()">Delete All Saved Data</button>
+							</div>
+                            <p style="padding-top: 5px;">
+                                - If you want to easily clear all saved data or if you majorly screwed up and cannot interact with the finders anymore, use this.
+                            </p>
+                            <div id="popup" class="popup">Character ID's cleared</div>
+                        </section>				
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+        <script src="assets/js/script-home.js"></script>
+        <script src="assets/js/script-main.js"></script>
+	</body>
+</html>

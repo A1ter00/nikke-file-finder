@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nikke File Finder</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<div id="main">
+				<div class="inner">
+						<div id="loading-overlay">
+							<div id="loading-spinner"></div>
+						</div>
+						<section></section>
+						<div class="row gtr-uniform">
+							<div class="col-4-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Upload<br>Addressables Folder</span>
+									<ul class="actions">
+										<li><a href="#" class="button primary icon solid fa-folder" id="uploadFolder">Upload Folder</a></li>
+										<input type="file" id="folderInput" webkitdirectory directory multiple onchange="readFolder(this)" style="display: none;">
+									</ul>
+								</div>
+								<textarea id="textArea" style="resize: none; display: none;"  readonly rows="1" cols="120" oninput="updateSelectorState()"></textarea>
+							</div>
+							<div class="col-5-small">
+								<select  id="selector" disabled onchange="updateSelectorState()"></select>
+							</div>
+							<div class="col-4-small">
+								<button id="exportButton" onclick="exportTable()" disabled>Export List</button>
+							</div>
+							<div class="col-5-small">
+								<div class="tooltip">
+									<span class="tooltiptext">Search by Name or ID</span>
+									<input type="text" id="idFilter" disabled placeholder="Search by Name or ID">
+								</div>
+							</div>
+							<div class="col-4-small">
+								<button id="applyButton" onclick="applyFilter()" disabled>Search</button>
+							</div>
+							<div class="col-4-small">
+								<button id="clearButton" onclick="clearFilter()" disabled>Clear</button>
+							</div>
+							<div class="col-8-small">
+								<div class="tooltip" style="width: 150%;">
+									<span class="tooltiptext">Portrait (Small) Bundle File</span>
+									<input type="text" id="textArea2" disabled readonly placeholder="Portrait (Small) Bundle File"></input>
+								</div>
+							</div>
+							<div class="col-4-small">
+								<button id="nukebtn" style="margin-left: 50%;" onclick="nuke()" disabled>Delete Saved Data</button>
+							</div>
+							<div class="col-12" id="checkboxGroup" style="visibility: hidden;"></div>
+							<br>
+						</div>
+						<div class="row">
+							<div class="table-container table-container-scroll" id="resultContainer"></div>
+							<button id="goToTopBtn" onclick="scrollToTop()" style="display: none;">
+								<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 6.414 7.293 7.293 1.414-1.414L12 3.586l-8.707 8.707 1.414 1.414L12 6.414z"/><path d="m3.293 18.293 1.414 1.414L12 12.414l7.293 7.293 1.414-1.414L12 9.586l-8.707 8.707z"/></svg>
+							</button>
+						</div>						
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/script-file.js"></script>
+		<script src="assets/js/script-main.js"></script>
+	</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Nikke File Finder</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<link rel="icon" href="assets/image/logo.png" type="image/icon type">
+</head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NDWNLVKN1P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NDWNLVKN1P');
+</script>
+
+<body class="is-preload">
+	<div id="wrapper">
+		<div id="main">
+			<div class="topnav">
+				<div>
+					<a class="lbl-title">Nikke File Finder</a>
+					<a class="lbl-author">by A1teri</a>
+					<a class="active icon solid fa-home lbl-link" id="homeLink" onclick="navClick('homeLink', 'page-home.html')"> - Home</a>
+					<a class="lbl-page">Finders</a>
+					<!--<a class="icon solid fa-upload lbl-link" id="uploadLink" onclick="navClick('uploadLink', 'upload.html')"> - Upload Files</a>-->	
+					<a class="icon solid fa-bars lbl-link" id="fileFinderLink" onclick="navClick('fileFinderLink', 'page-file.html')"> - Common Files (HD)</a>
+					<a class="icon solid fa-bars lbl-link" id="fileFinderLink2" onclick="navClick('fileFinderLink2', 'page-file2.html')"> - Common Files (SD)</a>
+					<a class="icon solid fa-spinner lbl-link" id="physicsFinderLink" onclick="navClick('physicsFinderLink', 'page-physics.html')"> - Physics Files</a>
+					<a class="icon solid fa-music lbl-link" id="voiceFinderLink" onclick="navClick('voiceFinderLink', 'page-voice.html')"> - Voice Files</a>
+					<a class="icon solid fa-globe lbl-link" id="miscFinderLink" onclick="navClick('miscFinderLink', 'page-misc.html')"> - Manual Search</a>
+					<a class="lbl-page">Extra</a>
+					<a class="icon solid fa-user-circle lbl-link" id="charLink" href="#menu2"> - Character ID's</a>
+					<a class="icon solid fa-question-circle lbl-link" href="#menu"> - How To Use</a>
+				</div>
+				<iframe id="maincontent"></iframe>
+				<nav id="menu">
+					<h4>Instructions</h4>
+					<ol>
+						<li>
+							Select which finder to use in the Navigation Bar.
+						</li>
+						<ul>
+							<li><b style="color: #f56a6a;">Common / Physics / Voice Files</b> - Are used to locate commonly used files</li>
+							<li><b style="color: #f56a6a;">Manual Search</b> - Use this if what youre looking for arent listed in the other finders</li>
+						</ul>
+						<li>Upload the folder that contains your <b style="color: #f56a6a;">Addressable / Voice files</b>
+							<ul>
+								<li>(Refer to the <i>Folders</i> section)</li>
+							</ul>
+						</li>
+						<li>Select which the type of file you're looking for (All, Aim,Standing,Voice, etc.)
+							<ul>
+								<li><b style="color: #f56a6a;">Export List</b> can be use to save data into csv files</li>
+							</ul>
+						</li>
+						<li>Search using character Name or ID (Optional)
+							<ul>
+								<li><b style="color: #f56a6a;">Ex</b> : <br>
+									'010 / Rapi' will show the same result <br>
+									'10' will show all characters that has '10' in their IDs (Rapi/Laplace/Drake/etc) <br>
+									'ra' will show all characters that has 'ra' as part of their name (Rapi/Rapunzle/Sakura/etc) <br>
+								</li>
+							</ul>
+						</li>
+					</ol>
+	
+					<h4>Folders</h4>
+					<ol>
+						<h5><li>Addressable Directory</li></h5>
+						<ul>
+							<li><del>%USERPROFILE%\AppData\LocalLow\com_proximabeta\NIKKE\com.unity.addressables</del></li>
+							<li>Addressables are now encrypted, the only way to obtain the decrypted files is by looking through <b style="color: #f56a6a;">#nikke-modding-chat</b> channel in <b style="color: #f56a6a;">Destiny Child International</b> Discord server (<a> https://discord.com/invite/destiny-child </a>)</li>
+							<li>Download all required files and put them inside a new folder, after that you can proceed to upload the said folder</li>
+						</ul>
+						<h5><li>Voice Directory</li></h5>
+						<ul>
+							<li>%USERPROFILE%\Appdata\LocalLow\com_proximabeta\NIKKE\saus\</li>
+						</ul>
+						<h5><li>Mod Directory</li></h5>
+						<ul>
+							<li>%USERPROFILE%\AppData\LocalLow\Unity\com_proximabeta_NIKKE\</li>
+						</ul>
+					</ol>
+				</nav>
+				<nav id="menu2">
+					<h4>Nikke ID's</h4>
+					<table id="charactersTable">
+						<thead>
+							<tr>
+								<th style="color:white;">ID</th>
+								<th style="color:white;">Name</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</nav>
+			</div>
+		</div>
+	</div>
+		<script src="assets/js/script-main.js"></script>
+		<script src="assets/js/script-loader.js"></script>
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/script-page.js"></script>
+</body>
+</html>

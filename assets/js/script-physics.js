@@ -14,48 +14,74 @@ window.onload = function() {
 
 //Folder Reader
 function readFolder(input) {
-	let loadingOverlay = document.getElementById('loading-overlay');
-	loadingOverlay.style.display = 'block';
-	const files = input.files;
-	if (files.length > 0) {
-		let combinedText = "";
-		for (const file of files) {
-			if (file.name.toLowerCase().endsWith('.json')) {
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					const fileContent = e.target.result;
-					const matchedStrings = [];
-					const matchIcon = fileContent.match(/"spinephysicssettings_assets_all_(\w+)\.bundle"/);
+    let loadingOverlay = document.getElementById('loading-overlay');
+    loadingOverlay.style.display = 'block';
+    const files = input.files;
+    let hasValidFiles = false;
+    let filesProcessed = 0;
+    
+    if (files.length > 0) {
+        let combinedText = "";
+        
+        for (const file of files) {
+            if (file.name.toLowerCase().endsWith('.json')) {
+                hasValidFiles = true;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const fileContent = e.target.result;
+                    const matchedStrings = [];
+                    const matchIcon = fileContent.match(/"spinephysicssettings_assets_all.bundle": "(\w+)"/);
 
-					if (matchIcon) {
-						let word = matchIcon[1];
-						document.getElementById("textArea2").value = word;
-					}
+                    if (matchIcon) {
+                        let word = matchIcon[1];
+                        document.getElementById("textArea2").value = word;
+                    }
 
-					for (const key in regexPatterns) {
-						const regex = regexPatterns[key];
-						let match;
-						while ((match = regex.exec(fileContent)) !== null) {
-							matchedStrings.push(match[0]);
-						}
-					}
+                    for (const key in regexPatterns) {
+                        const regex = regexPatterns[key];
+                        let match;
+                        while ((match = regex.exec(fileContent)) !== null) {
+                            matchedStrings.push(match[0]);
+                        }
+                    }
 
-					combinedText += matchedStrings.join('\n');
-					document.getElementById("textArea").value = combinedText;
+                    combinedText += matchedStrings.join('\n');
+                    document.getElementById("textArea").value = combinedText;
+                    checkboxGroup.style.visibility = 'visible';
+                    updateSelectorState();
+                    saveTextAreaData();
 
-					checkboxGroup.style.visibility = 'visible';
-					updateSelectorState();
-					loadingOverlay.style.display = 'none';
-					saveTextAreaData();
+                    filesProcessed++;
+                    if (filesProcessed === countValidFiles(files)) {
+                        loadingOverlay.style.display = 'none';
+                    }
+                };
+                reader.onerror = function() {
+                    filesProcessed++;
+                    if (filesProcessed === countValidFiles(files)) {
+                        loadingOverlay.style.display = 'none';
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        if (!hasValidFiles) {
+            loadingOverlay.style.display = 'none';
+        }
+    } else {
+        loadingOverlay.style.display = 'none';
+    }
+}
 
-					loadingOverlay.style.display = 'none';
-				};
-				reader.readAsText(file);
-			}
-		}
-	} else {
-		loadingOverlay.style.display = 'none';
-	}
+function countValidFiles(files) {
+    let count = 0;
+    for (const file of files) {
+        if (file.name.toLowerCase().endsWith('.json')) {
+            count++;
+        }
+    }
+    return count;
 }
 
 function updateSelectorState() {

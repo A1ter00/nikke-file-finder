@@ -5,11 +5,11 @@ const regexPatterns = {
 	Standing: /"spinestandingcharactergroup\(hd\)_assets_spine\/standing\/(\w+)\/(\w+)_hd.bundle": "(\w+)"/g,
 	'Portrait(Full)': /"icons-char-full\(hd\)_assets_(\w+)_(\w+).bundle": "(\w+)"/g,
 	'Portrait(Medium)': /"icons-char-mi\(hd\)_assets_mi_(\w+)_(\w+)_s.bundle": "(\w+)"/g,
-	'Burst(Lobby)': /livewallpaperprefabs_assets_livewallpaper\/eventscene_(\w+)_cutscene_(\w+)\.bundle/g,
-	'Burst(Battle)': /spotskillcutscene_assets_(\w+)_cut_scene_(\w+)\.bundle/g,
+	'Burst(Lobby)': /livewallpaperprefabs_assets_livewallpaper\/eventscene_(\w+)_cutscene_(\w+)\.bundle/g, 
+	'Burst(Battle)': /spotskillcutscene_assets_(\w+)_cut_scene_(\w+)\.bundle/g,	
 	'SD-Model' : /"sdcharacters_assets_(\w+)_(\w+)_var.bundle": "(\w+)"/g,
 	Background: /"scenariobackground\(hd\)_assets_(\w+).bundle": "(\w+)"/g,
-	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)_(\w+)\.bundle/g
+	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)_(\w+)\.bundle/g 
 };
 
 window.onload = function() {
@@ -19,50 +19,80 @@ window.onload = function() {
 	fetchData();
 };
 
-//Folder Reader
 function readFolder(input) {
-	let loadingOverlay = document.getElementById('loading-overlay');
-	loadingOverlay.style.display = 'block';
-	const files = input.files;
-	if (files.length > 0) {
-		let combinedText = "";
-		for (const file of files) {
-			if (file.name.toLowerCase().endsWith('.json')) {
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					const fileContent = e.target.result;
-					const matchedStrings = [];
-					const matchIcon = fileContent.match(/"icons-char-si\(hd\)_assets_all.bundle": "(\w+)"/);
+    let loadingOverlay = document.getElementById('loading-overlay');
+    loadingOverlay.style.display = 'block';
+    const files = input.files;
+    let hasValidFiles = false;
+    let filesProcessed = 0;
+    
+    if (files.length > 0) {
+        let combinedText = "";
+        const validFilesCount = countValidFiles(files); 
+        
+        for (const file of files) {
+            if (file.name.toLowerCase().endsWith('.json')) {
+                hasValidFiles = true;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const fileContent = e.target.result;
+                        const matchedStrings = [];
+                        const matchIcon = fileContent.match(/"icons-char-si\(hd\)_assets_all.bundle": "(\w+)"/);
 
-					if (matchIcon) {
-						let word = matchIcon[1];
-						document.getElementById("textArea2").value = word;
-					}
+                        if (matchIcon) {
+                            let word = matchIcon[1];
+                            document.getElementById("textArea2").value = word;
+                        }
 
-					for (const key in regexPatterns) {
-						const regex = regexPatterns[key];
-						let match;
-						while ((match = regex.exec(fileContent)) !== null) {
-							matchedStrings.push(match[0]);
-						}
-					}
+                        for (const key in regexPatterns) {
+                            const regex = regexPatterns[key];
+                            let match;
+                            while ((match = regex.exec(fileContent)) !== null) {
+                                matchedStrings.push(match[0]);
+                            }
+                        }
 
-					combinedText += matchedStrings.join('\n');
-					document.getElementById("textArea").value = combinedText;
+                        combinedText += matchedStrings.join('\n');
+                        document.getElementById("textArea").value = combinedText;
+                        checkboxGroup.style.visibility = 'visible';
+                        updateSelectorState();
+                        saveTextAreaData();
+                    } catch (error) {
+                        console.error("Error processing file:", file.name, error);
+                    } finally {
+                        filesProcessed++;
+                        if (filesProcessed === validFilesCount) {
+                            loadingOverlay.style.display = 'none';
+                        }
+                    }
+                };
+                reader.onerror = function() {
+                    filesProcessed++;
+                    if (filesProcessed === validFilesCount) {
+                        loadingOverlay.style.display = 'none';
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        if (!hasValidFiles) {
+            loadingOverlay.style.display = 'none';
+        }
+    } else {
+        loadingOverlay.style.display = 'none';
+    }
+}
 
-					checkboxGroup.style.visibility = 'visible';
-					updateSelectorState();
-					loadingOverlay.style.display = 'none';
-					saveTextAreaData();
-
-					loadingOverlay.style.display = 'none';
-				};
-				reader.readAsText(file);
-			}
-		}
-	} else {
-		loadingOverlay.style.display = 'none';
-	}
+function countValidFiles(files) {
+    let count = 0;
+    for (const file of files) {
+        if (file.name.toLowerCase().endsWith('.json')) {
+            count++;
+        }
+    }
+    return count;
 }
 
 function updateSelectorState() {

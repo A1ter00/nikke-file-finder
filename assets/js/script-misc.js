@@ -12,30 +12,37 @@ document.getElementById('folderInput').addEventListener('change', async function
     let results = {};
     let extractedData = [];
 
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        if (file.name.endsWith('.json')) {
-            let content = await readFileAsync(file);
-            let regex = /"key":\s*"([^_-]+)[_-]([^"]+)_([^"].*?)\.bundle"/g;
-            let match;
-            while ((match = regex.exec(content)) !== null) {
-                let type = match[1];
-                let groupname = match[2];
-                let hash = match[3];
-
-                if (!/^[a-zA-Z0-9]{32}$/.test(hash)) {
-                    groupname += `_${hash}`;
-                    hash = '';
-                }
-
-                if (!results[type]) {
-                    results[type] = [];
-                }
-                results[type].push({ groupname, hash });
-                extractedData.push(`Type: ${type}, Group: ${groupname}, Hash: ${hash}`);
+   for (let i = 0; i < files.length; i++) {
+    let file = files[i];
+    if (file.name.endsWith('.json')) {
+        let content = await readFileAsync(file);
+        let regex = /"(?:key":\s*"([^-/_]+)[-/_]([^"]+)",\s*"bundle_name":\s*"([^"]*)"|([^-/_]+)[-/_]([^."]+)(?:\.bundle)?"\s*:\s*"([^"]*)")/g;
+        let match;
+        while ((match = regex.exec(content)) !== null) {
+            let type, groupname, hash;
+            if (match[1]) { 
+                type = match[1];
+                groupname = match[2];
+                hash = match[3];
+            } else { 
+                type = match[4];
+                groupname = match[5];
+                hash = match[6];
             }
+
+            groupname = groupname.replace(/\.bundle$/, '');
+            
+            if (!/^[a-f0-9]{32}$/i.test(hash)) {
+                groupname += (groupname ? '_' : '') + hash;
+                hash = '';
+            }
+
+            if (!results[type]) results[type] = [];
+            results[type].push({ groupname, hash });
+            extractedData.push(`Type: ${type}, Group: ${groupname}, Hash: ${hash}`);
         }
     }
+}
     
     textArea.value = extractedData.join('\n');
     generateTables(results);

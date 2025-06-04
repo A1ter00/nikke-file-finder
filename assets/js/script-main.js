@@ -425,3 +425,15 @@ function scrollToTop() {
     document.getElementById("resultContainer").scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function majornuke() {
+	localStorage.removeItem('textAreaData');
+	localStorage.removeItem('textArea2Data');
+    localStorage.removeItem('textAreaData2');
+	localStorage.removeItem('textArea2Data2');
+    localStorage.removeItem('textAreaPhysicsData');
+	localStorage.removeItem('textAreaPhysics2Data');
+    localStorage.removeItem('textAreaVoiceData');
+    localStorage.removeItem('textIDData');
+	//location.reload();
+    parent.location.href = 'index.html';
+}

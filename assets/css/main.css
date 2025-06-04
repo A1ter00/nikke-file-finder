@@ -27,7 +27,6 @@ table {
 body {
   -webkit-text-size-adjust: none; }
 
-
 input::-moz-focus-inner {
   border: 0;
   padding: 0; }
@@ -54,10 +53,6 @@ html {
 body {
   background: #ffffff; }
   body.is-preload *, body.is-preload *:before, body.is-preload *:after, body.is-resizing *, body.is-resizing *:before, body.is-resizing *:after {
-    -moz-animation: none !important;
-    -webkit-animation: none !important;
-    -ms-animation: none !important;
-    animation: none !important;
     -moz-transition: none !important;
     -webkit-transition: none !important;
     -ms-transition: none !important;

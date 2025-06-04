@@ -623,7 +623,11 @@ table {
     border-left: 0;
     border-right: 0; }
     table tbody tr:nth-child(2n + 1) {
-      background-color: rgba(230, 235, 237, 0.25); }
+    background-color: rgba(230, 235, 237, 0.25);}
+    table tbody tr.force-odd {
+    background-color: rgba(230, 235, 237, 0.25) !important;}
+    table tbody tr.force-even {
+    background-color: transparent !important;}
   table td {
     padding: 0.25em 0.25em; }
   table th {

@@ -37,6 +37,7 @@ function fetchData() {
         localData = JSON.parse(localStorageData);
         displayData(localData);
         processFetchedData(localData);
+        setupSearch();
     }
 
     fetch('https://api.dotgg.gg/nikke/characters/id')
@@ -49,6 +50,7 @@ function fetchData() {
                 localStorage.setItem('textIDData', fetchedString);
                 displayData(fetchedData);
                 processFetchedData(fetchedData);
+                setupSearch();
             }
         })
 }
@@ -76,6 +78,8 @@ function displayData(data) {
                         <td>${id}</td>
                         <td>${data[id]}</td>
                     `;
+                    row.dataset.id = id;
+                    row.dataset.name = data[id].toLowerCase();
                     tableBody.appendChild(row);
                 }
             }
@@ -83,6 +87,48 @@ function displayData(data) {
             console.error('Invalid data format');
         }
     } 
+}
+
+// Search for nikke ID
+function setupSearch() {
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search by Name or ID';
+    searchInput.style.color = 'black';
+    searchInput.style.marginBottom = '10px';
+
+    const table = document.querySelector('#charactersTable');
+    if (table) {
+        table.parentNode.insertBefore(searchInput, table);
+    }
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#charactersTable tbody tr');
+        const visibleRows = [];
+    
+        rows.forEach(row => {
+            const id = row.dataset.id;
+            const name = row.dataset.name;
+            
+            if (id.includes(searchTerm) || name.includes(searchTerm)) {
+                row.style.display = '';
+                visibleRows.push(row);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        rows.forEach(row => {
+            row.classList.remove('force-odd', 'force-even');
+        });
+        visibleRows.forEach((row, index) => {
+            if (index % 2 === 0) {
+                row.classList.add('force-odd');
+            } else {
+                row.classList.add('force-even');
+            }
+        });
+    });
 }
 
 function loadPage(page) {

@@ -1,8 +1,8 @@
 //Syntaxes
 const regexPatterns = {
-	'Aim(Physics)': /"spine\/physics\/(\w+)\/(\w+)\/aim": "(\w+)"/g,
-	'AimShooting(Physics)': /"spine\/physics\/(\w+)\/(\w+)\/aim-shooting": "(\w+)"/g,
-	'Cover(Physics)': /"spine\/physics\/(\w+)\/(\w+)\/cover": "(\w+)"/g,
+    'Aim(Physics)': /"key": "spine\/physics\/(\w+)\/(\w+)\/aim",\s+"hash": "(\w+)"/g,
+    'AimShooting(Physics)': /"key": "spine\/physics\/(\w+)\/(\w+)\/aim-shooting",\s+"hash": "(\w+)"/g,
+    'Cover(Physics)': /"key": "spine\/physics\/(\w+)\/(\w+)\/cover",\s+"hash": "(\w+)"/g,
 };
 
 window.onload = function() {
@@ -30,7 +30,9 @@ function readFolder(input) {
                 reader.onload = function (e) {
                     const fileContent = e.target.result;
                     const matchedStrings = [];
-                    const matchIcon = fileContent.match(/"spinephysicssettings_assets_all.bundle": "(\w+)"/);
+                    const matchIcon = fileContent.match(/spinephysicssettings_assets_all_(\w+)\.bundle/);
+
+					
 
                     if (matchIcon) {
                         let word = matchIcon[1];

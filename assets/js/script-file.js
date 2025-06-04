@@ -1,16 +1,18 @@
 //Syntaxes
 const regexPatterns = {
-	Aim: /"spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_hd.bundle": "(\w+)"/g,
-	Cover: /"spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_hd.bundle": "(\w+)"/g,
-	Standing: /"spinestandingcharactergroup\(hd\)_assets_spine\/standing\/(\w+)\/(\w+)_hd.bundle": "(\w+)"/g,
-	'Portrait(Full)': /"icons-char-full\(hd\)_assets_(\w+)_(\w+).bundle": "(\w+)"/g,
-	'Portrait(Medium)': /"icons-char-mi\(hd\)_assets_mi_(\w+)_(\w+)_s.bundle": "(\w+)"/g,
+	Aim: /spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_hd_(\w+)\.bundle/g, 
+	Cover: /spinecombatcharactergroup\(hd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_hd_(\w+)\.bundle/g, 
+	Standing: /spinestandingcharactergroup\(hd\)_assets_spine\/standing\/(\w+)\/(\w+)_hd_(\w+)\.bundle/g, 
+	'Portrait(Full)': /icons-char-full\(hd\)_assets_(\w+)_(\w+)_(\w+)\.bundle/g, 
+	'Portrait(Medium)': /icons-char-mi\(hd\)_assets_mi_(\w+)_(\w+)_s_(\w+)\.bundle/g, 
 	'Burst(Lobby)': /livewallpaperprefabs_assets_livewallpaper\/eventscene_(\w+)_cutscene_(\w+)\.bundle/g, 
 	'Burst(Battle)': /spotskillcutscene_assets_(\w+)_cut_scene_(\w+)\.bundle/g,	
-	'SD-Model' : /"sdcharacters_assets_(\w+)_(\w+)_var.bundle": "(\w+)"/g,
-	Background: /"scenariobackground\(hd\)_assets_(\w+).bundle": "(\w+)"/g,
+	'SD-Model' : /sdcharacters_assets_(\w+)_(\w+)_var_(\w+)\.bundle/g, 
+	Background: /scenariobackground\(hd\)_assets_(\w+)_(\w+)\.bundle/g, 
 	EventsWallpaper: /spineeventscenesgroup\(hd\)_assets_spine\/events\/eventscene_(\w+)_(\w+)\.bundle/g 
 };
+
+
 
 window.onload = function() {
     generateCheckboxes();
@@ -38,7 +40,7 @@ function readFolder(input) {
                     try {
                         const fileContent = e.target.result;
                         const matchedStrings = [];
-                        const matchIcon = fileContent.match(/"icons-char-si\(hd\)_assets_all.bundle": "(\w+)"/);
+                        const matchIcon = fileContent.match(/icons-char-si\(hd\)_assets_all_(\w+)\.bundle/);
 
                         if (matchIcon) {
                             let word = matchIcon[1];

@@ -1,11 +1,11 @@
 //Syntaxes
 const regexPatterns = {
-	Aim: /"spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_sd.bundle": "(\w+)"/g,
-	Cover: /"spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_sd.bundle": "(\w+)"/g,
-	Standing: /"spinestandingcharactergroup\(sd\)_assets_spine\/standing\/(\w+)\/(\w+)_sd.bundle": "(\w+)"/g,
-	'Portrait(Full)': /"icons-char-full\(sd\)_assets_(\w+)_(\w+).bundle": "(\w+)"/g,
-	'Portrait(Medium)': /"icons-char-mi\(sd\)_assets_mi_(\w+)_(\w+)_s.bundle": "(\w+)"/g,
-	Background: /"scenariobackground\(sd\)_assets_(\w+).bundle": "(\w+)"/g
+	Aim: /spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/aim_sd_(\w+)\.bundle/g, 
+	Cover: /spinecombatcharactergroup\(sd\)_assets_spine\/combat\/(\w+)\/(\w+)\/cover_sd_(\w+)\.bundle/g, 
+	Standing: /spinestandingcharactergroup\(sd\)_assets_spine\/standing\/(\w+)\/(\w+)_sd_(\w+)\.bundle/g, 
+	'Portrait(Full)': /icons-char-full\(sd\)_assets_(\w+)_(\w+)_(\w+)\.bundle/g, 
+	'Portrait(Medium)': /icons-char-mi\(sd\)_assets_mi_(\w+)_(\w+)_s_(\w+)\.bundle/g, 
+	Background: /scenariobackground\(sd\)_assets_(\w+).bundle_(\w+)\.bundle/g
 };
 
 window.onload = function() {
@@ -33,7 +33,7 @@ function readFolder(input) {
                     try {
                         const fileContent = e.target.result;
                         const matchedStrings = [];
-                        const matchIcon = fileContent.match(/"icons-char-si\(sd\)_assets_all.bundle": "(\w+)"/);
+                        const matchIcon = fileContent.match(/icons-char-si\(sd\)_assets_all_(\w+)\.bundle/);
 
                         if (matchIcon) {
                             let word = matchIcon[1];

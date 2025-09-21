@@ -1325,3 +1325,34 @@ body.is-menu2-visible #menu2 {
 .popup.show {
   opacity: 1;
 }
+
+#dropzone {
+      border: 2px dashed #aaa;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      color: #555;
+      margin-bottom: 12px;
+      transition: border-color 0.2s ease;
+    }
+    #dropzone ul {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0 0;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+    }
+    #fileLinks a {
+      display: inline-block;
+      margin: 4px;
+      text-decoration: none;
+      background: #f56a6a;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    #fileLinks a:hover {
+
+    }

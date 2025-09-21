@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nikke Catalog Generator</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=(), attribution-reporting=(), run-ad-auction=(), join-ad-interest-group=(), compute-pressure=(), browsing-topics=()">
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<style>
+			body {
+			margin: 28px auto;
+			padding: 18px;
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<div id="main">
+				<div class="inner">
+						<div id="loading-overlay">
+							<div id="loading-spinner"></div>
+						</div>
+						<section></section>
+						<div>
+							<h2>Nikke Catalogs Generator</h2>
+							<ul>
+								<p>Drop your latest catalog files ( core/dp/fd )</p>
+								<li><p>files are located at <b style="font-weight: 1000; color: #e2212f;">%USERPROFILE%\AppData\LocalLow\com_proximabeta\NIKKE\com.shiftup.addressables</b></p></li>
+								<li><p>this could take a couple of minutes</p></li>
+							</ul>
+							<div id="dropzone">
+								<div id="droptext">Drag & Drop files here<br><small>or click to select</small></div>
+								<input id="fileinput" type="file" multiple style="display:none">
+							</div>
+							<div>
+								<button id="start">Decrypt selected files</button>
+								<button id="downloadAll" style="display:none">Download All JSON</button>
+							</div>
+							<div id="fileLinks"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/script-decryptor.js"></script>
+		<script src="assets/js/script-main.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	</body>
+</html>

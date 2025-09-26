@@ -101,7 +101,6 @@ const fileInput = document.getElementById('fileinput');
     const worker = new Worker('worker.js');
     const loadingOverlay = document.getElementById('loading-overlay');
     worker.onmessage = e => {
-      // Ensure we always decrement pendingCount when a message arrives (success or error)
       if (e.data.error) {
         console.error(e.data.error, e.data.fileName);
       } else {
@@ -116,14 +115,12 @@ const fileInput = document.getElementById('fileinput');
         if(allResults.length>0) downloadAllBtn.style.display='inline-block';
       }
 
-      // decrement pending counter and hide overlay when done
       if (pendingCount > 0) pendingCount -= 1;
       if (pendingCount <= 0) {
         loadingOverlay.style.display = 'none';
       }
     };
 
-    // handle worker runtime errors (not sent via onmessage)
     worker.onerror = e => {
       console.error('Worker error', e);
       if (pendingCount > 0) pendingCount -= 1;
@@ -140,7 +137,6 @@ const fileInput = document.getElementById('fileinput');
         return; 
       }
 
-      // show overlay and set pending count
       pendingCount = files.length;
       loadingOverlay.style.display = 'block';
 
@@ -149,7 +145,6 @@ const fileInput = document.getElementById('fileinput');
         hosturl = await fetchHostUrl();
       } catch (err) {
         console.error('Failed to fetch host url', err);
-        // reset pending and hide overlay to avoid stuck UI
         pendingCount = 0;
         loadingOverlay.style.display = 'none';
         return;

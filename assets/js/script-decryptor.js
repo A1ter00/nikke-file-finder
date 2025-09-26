@@ -72,6 +72,25 @@ const fileInput = document.getElementById('fileinput');
       return copy;
     }
 
+    async function fetchHostUrl() {
+      const headers = {
+        "Content-Type": "application/octet-stream+protobuf",
+        "Accept": "application/octet-stream+protobuf",
+        "Accept-Encoding": "gzip,deflate"
+      };
+      const resp = await fetch("https://us-lobby.nikke-kr.com/v1/resourcehosts2", {
+        method: "POST",
+        headers
+      });
+      const text = await resp.text();
+      const m = text.match(/https:\/\/(.*)\{Platform\}/);
+      if (!m) {
+        console.warn("Could not parse host URL from response");
+        return null;
+      }
+      return "https://" + m[1];
+    }
+
     async function processFile(file){
       const loadingOverlay = document.getElementById('loading-overlay');
       if (loadingOverlay) loadingOverlay.style.display = 'block';
@@ -124,8 +143,8 @@ const fileInput = document.getElementById('fileinput');
       const outBuf = new Uint8Array(total); let off=0; for(const c of outputChunks){ outBuf.set(c, off); off += c.length; }
 
       const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
-  let db;
-  try { db = new SQL.Database(outBuf); } catch (e) { console.error("SQLite open error:", e); loadingOverlay.style.display = 'none'; return; }
+      let db;
+      try { db = new SQL.Database(outBuf); } catch (e) { console.error("SQLite open error:", e); loadingOverlay.style.display = 'none'; return; }
 
       let keyEntries = [], keys = [], entries = [], entryData = [], internalIds = [];
       try { const stmt=db.prepare("SELECT * FROM key_entries"); while(stmt.step()) keyEntries.push(stmt.getAsObject()); stmt.free(); } catch(e){}
@@ -137,8 +156,27 @@ const fileInput = document.getElementById('fileinput');
       const seen = new Set();
       const resolvedAndFlattened = [];
 
+      const hosturl = await fetchHostUrl();
+
       for (const row of keyEntries) {
         const newRow = {};
+
+        let urlValue = null;
+        if (hosturl) {
+          const fname = file.name;
+          const base = fname.replace(/\.[^.]+$/, "");
+          const parts = base.split("_");
+          if (parts.length >= 2) {
+            const first = parts[0];
+            const second = parts[1];
+            if (first.toLowerCase().includes("core")) {
+              urlValue = `${hosturl}/StandaloneWindows64/${first}/${second}/key`;
+            } else {
+              urlValue = `${hosturl}/StandaloneWindows64/pck/${first}/${second}/key`;
+            }
+          }
+        }
+        newRow.url = urlValue;
 
         let keyValue;
         if (typeof row.key_rowid === 'number') {

@@ -4,7 +4,8 @@ const fileInput = document.getElementById('fileinput');
     const startBtn = document.getElementById('start');
     const downloadAllBtn = document.getElementById('downloadAll');
     const fileLinks = document.getElementById('fileLinks');
-    let allResults = [];
+  let allResults = [];
+  let pendingCount = 0; 
 
     function updateDropText(files){
       if(!files || files.length===0){
@@ -97,192 +98,67 @@ const fileInput = document.getElementById('fileinput');
       return "https://" + m[1];
     }
 
-    async function processFile(file){
-      const loadingOverlay = document.getElementById('loading-overlay');
-      if (loadingOverlay) loadingOverlay.style.display = 'block';
-
-      const ab = await file.arrayBuffer();
-      const data = new Uint8Array(ab);
-      const view = new DataView(ab);
-      const magic = new TextDecoder().decode(data.slice(0,4));
-      if(magic !== 'NKDB'){ console.error("Not a valid file"); loadingOverlay.style.display = 'none'; return; }
-      const version = readUInt32BE(view, 4);
-      if(version !== 1){ console.error("Unsupported version", version); loadingOverlay.style.display = 'none'; return; }
-
-      const aesKey = data.slice(8, 24);
-      const segmentSize = readUInt32BE(view, 24);
-      const segmentCount = readUInt32BE(view, 28);
-      const product = BigInt(segmentSize) * BigInt(segmentCount);
-      const lengthByteCount = product > 0xFFFFFFFFn ? 5 : 4;
-
-      let pos = 32;
-      const offsets = [];
-      const firstOffset = Number(readBE(view, pos, lengthByteCount)); pos += lengthByteCount;
-      let currentOffset = firstOffset;
-      for(let i=0;i<segmentCount;i++){
-        const nextOffset = Number(readBE(view, pos, lengthByteCount)); pos += lengthByteCount;
-        offsets.push({ offset: currentOffset, length: nextOffset - currentOffset, index: i });
-        currentOffset = nextOffset;
+    const worker = new Worker('worker.js');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    worker.onmessage = e => {
+      // Ensure we always decrement pendingCount when a message arrives (success or error)
+      if (e.data.error) {
+        console.error(e.data.error, e.data.fileName);
+      } else {
+        const { fileName, data } = e.data;
+        allResults.push({ name: fileName, data });
+        const jsonBlob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+        const a = document.createElement("a");
+        a.download = fileName;
+        a.href = URL.createObjectURL(jsonBlob);
+        a.textContent = "⬇ " + fileName;
+        fileLinks.appendChild(a);
+        if(allResults.length>0) downloadAllBtn.style.display='inline-block';
       }
 
-      const outputChunks = [];
-      for(const seg of offsets){
-        if(seg.length <= 0) continue;
-        if(seg.offset + seg.length > data.length) continue;
-
-        const encrypted = data.slice(seg.offset, seg.offset + seg.length);
-        const ivBuf = new ArrayBuffer(16); const ivView = new DataView(ivBuf);
-        ivView.setInt32(0, seg.index, true);
-        ivView.setInt32(4, seg.offset | 0, true);
-
-        const keyWA = CryptoJS.lib.WordArray.create(aesKey);
-        const ivWA  = CryptoJS.lib.WordArray.create(new Uint8Array(ivBuf));
-        const ctWA  = CryptoJS.lib.WordArray.create(encrypted, encrypted.length);
-
-        try{
-          const dec = CryptoJS.AES.decrypt({ ciphertext: ctWA }, keyWA, { iv: ivWA, mode: CryptoJS.mode.OFB, padding: CryptoJS.pad.NoPadding });
-          const decBytes = wordArrayToUint8Array(dec);
-          const inflated = pako.inflate(decBytes);
-          outputChunks.push(inflated);
-        } catch(e){ console.error("Decrypt/inflate error:", e); loadingOverlay.style.display = 'none'; return; }
+      // decrement pending counter and hide overlay when done
+      if (pendingCount > 0) pendingCount -= 1;
+      if (pendingCount <= 0) {
+        loadingOverlay.style.display = 'none';
       }
-      let total = 0; for(const c of outputChunks) total += c.length;
-      const outBuf = new Uint8Array(total); let off=0; for(const c of outputChunks){ outBuf.set(c, off); off += c.length; }
+    };
 
-      const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
-      let db;
-      try { db = new SQL.Database(outBuf); } catch (e) { console.error("SQLite open error:", e); loadingOverlay.style.display = 'none'; return; }
-
-      let keyEntries = [], keys = [], entries = [], entryData = [], internalIds = [];
-      try { const stmt=db.prepare("SELECT * FROM key_entries"); while(stmt.step()) keyEntries.push(stmt.getAsObject()); stmt.free(); } catch(e){}
-      try { const stmt=db.prepare("SELECT rowid, * FROM keys"); while(stmt.step()) keys.push(stmt.getAsObject()); stmt.free(); } catch(e){}
-      try { const stmt=db.prepare("SELECT rowid, * FROM entries"); while(stmt.step()) entries.push(stmt.getAsObject()); stmt.free(); } catch(e){}
-      try { const stmt=db.prepare("SELECT rowid, * FROM entry_data"); while(stmt.step()) entryData.push(stmt.getAsObject()); stmt.free(); } catch(e){}
-      try { const stmt=db.prepare("SELECT rowid, * FROM internal_ids"); while(stmt.step()) internalIds.push(stmt.getAsObject()); stmt.free(); } catch(e){}
-
-      const seen = new Set();
-      const resolvedAndFlattened = [];
-
-      const hosturl = await fetchHostUrl();
-
-      for (const row of keyEntries) {
-        const tempRow = {};
-
-        let keyValue;
-        if (typeof row.key_rowid === 'number') {
-          const ref = keys.find(r => r.rowid === row.key_rowid);
-          keyValue = ref ? ref.key : row.key_rowid;
-        } else {
-          keyValue = row.key_rowid;
-        }
-
-        let internalIdValue;
-        let hashVal, containerVal;
-
-        if (typeof row.entry_rowid === 'number') {
-          const entryRef = entries.find(r => r.rowid === row.entry_rowid);
-          if (entryRef) {
-            const entryCopy = cleanRow(entryRef);
-
-            if (typeof entryCopy.data_rowid === 'number') {
-              const dataRef = entryData.find(d => d.rowid === entryCopy.data_rowid);
-              if (dataRef) entryCopy.data_rowid = cleanRow(dataRef);
-            }
-
-            if (typeof entryCopy.internal_id_rowid === 'number') {
-              const intRef = internalIds.find(i => i.rowid === entryCopy.internal_id_rowid);
-              if (intRef) entryCopy.internal_id_rowid = intRef.internal_id;
-            }
-
-            internalIdValue = entryCopy.internal_id_rowid;
-
-            for (const k in entryCopy) {
-              if (k === 'data_rowid') continue;
-
-              if (k === 'internal_id_rowid' && String(keyValue).toLowerCase().includes('.bundle')) {
-                continue;
-              }
-              if (k === 'internal_id_rowid') {
-                hashVal = entryCopy[k];
-                continue;
-              }
-              if (k === 'bundle_name') {
-                containerVal = entryCopy[k];
-                continue;
-              }
-              tempRow[k] = entryCopy[k];
-            }
-            if (entryCopy.data_rowid && typeof entryCopy.data_rowid === 'object') {
-              for (const k in entryCopy.data_rowid) {
-                if (k === 'bundle_name') containerVal = entryCopy.data_rowid[k];
-                else tempRow[k] = entryCopy.data_rowid[k];
-              }
-            }
-          }
-        }
-
-        for (const k in row) {
-          if (k === 'key_rowid' || k === 'entry_rowid') continue;
-          if (!(k in tempRow)) tempRow[k] = row[k];
-        }
-
-        const lowerKey = String(keyValue).toLowerCase();
-        const idKey = keyValue + '|' + (internalIdValue ?? '');
-        if (keyValue === internalIdValue) continue;
-        if (/_hd$/i.test(keyValue) || /_sd$/i.test(keyValue)) continue;
-        if (!(lowerKey.includes('spine/') || lowerKey.includes('.bundle'))) continue;
-        if (seen.has(idKey)) continue;
-        seen.add(idKey);
-
-        let urlVal = null;
-        if (hosturl && containerVal) {
-          const fname = file.name;
-          const base = fname.replace(/\.[^.]+$/, "");
-          const parts = base.split("_");
-          if (parts.length >= 2) {
-            const first = parts[0];
-            const second = parts[1];
-
-            if (first.toLowerCase().includes("core")) {
-              urlVal = `${hosturl}/StandaloneWindows64/${first}/${second}/${keyValue}`;
-            } else if (first.toLowerCase().includes("dp")) {
-              urlVal = `${hosturl}/StandaloneWindows64/pck/${first}/${second}/${keyValue}`;
-            }
-          }
-        }
-
-        const newRow = {};
-        if (urlVal) newRow.url = urlVal;
-        newRow.key = keyValue;
-        if (hashVal) newRow.hash = hashVal;
-
-        for (const k in tempRow) {
-        if (k === 'container' || k === 'bundle_name') continue;
-        if (!(k in newRow)) newRow[k] = tempRow[k];
-      }
-
-        resolvedAndFlattened.push(newRow);
-      }
-
-      allResults.push({ name: file.name + ".json", data: resolvedAndFlattened });
-      const jsonBlob = new Blob([JSON.stringify(resolvedAndFlattened,null,2)], {type:"application/json"});
-      const a = document.createElement("a");
-      a.download = file.name + ".json";
-      a.href = URL.createObjectURL(jsonBlob);
-      a.textContent = "⬇ " + file.name;
-      fileLinks.appendChild(a);
-      loadingOverlay.style.display = 'none';
-    }
-
+    // handle worker runtime errors (not sent via onmessage)
+    worker.onerror = e => {
+      console.error('Worker error', e);
+      if (pendingCount > 0) pendingCount -= 1;
+      if (pendingCount <= 0) loadingOverlay.style.display = 'none';
+    };
 
     startBtn.addEventListener('click', async () => {
       fileLinks.innerHTML = '';
       allResults = [];
       downloadAllBtn.style.display='none';
       const files = Array.from(fileInput.files || []);
-      if(files.length === 0){ alert('Select files first or drop them into the box.'); return; }
-      for(const f of files){ await processFile(f); }
-      if(allResults.length>0) downloadAllBtn.style.display='inline-block';
+      if(files.length === 0){ 
+        alert('Select files first or drop them into the box.'); 
+        return; 
+      }
+
+      // show overlay and set pending count
+      pendingCount = files.length;
+      loadingOverlay.style.display = 'block';
+
+      let hosturl = null;
+      try {
+        hosturl = await fetchHostUrl();
+      } catch (err) {
+        console.error('Failed to fetch host url', err);
+        // reset pending and hide overlay to avoid stuck UI
+        pendingCount = 0;
+        loadingOverlay.style.display = 'none';
+        return;
+      }
+
+      for (const f of files){
+        const ab = await f.arrayBuffer();
+        worker.postMessage({ fileName: f.name, arrayBuffer: ab, hosturl }, [ab]);
+      }
     });
 
     // Download all as zip

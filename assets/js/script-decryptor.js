@@ -78,10 +78,16 @@ const fileInput = document.getElementById('fileinput');
         "Accept": "application/octet-stream+protobuf",
         "Accept-Encoding": "gzip,deflate"
       };
-      const resp = await fetch("https://us-lobby.nikke-kr.com/v1/resourcehosts2", {
+
+      const proxiedUrl =
+        "https://corsproxy.io/?" +
+        encodeURIComponent("https://us-lobby.nikke-kr.com/v1/resourcehosts2");
+
+      const resp = await fetch(proxiedUrl, {
         method: "POST",
         headers
       });
+
       const text = await resp.text();
       const m = text.match(/https:\/\/(.*)\{Platform\}/);
       if (!m) {
@@ -94,6 +100,7 @@ const fileInput = document.getElementById('fileinput');
     async function processFile(file){
       const loadingOverlay = document.getElementById('loading-overlay');
       if (loadingOverlay) loadingOverlay.style.display = 'block';
+
       const ab = await file.arrayBuffer();
       const data = new Uint8Array(ab);
       const view = new DataView(ab);
@@ -159,33 +166,18 @@ const fileInput = document.getElementById('fileinput');
       const hosturl = await fetchHostUrl();
 
       for (const row of keyEntries) {
-        const newRow = {};
-
-        let urlValue = null;
-        if (hosturl) {
-          const fname = file.name;
-          const base = fname.replace(/\.[^.]+$/, "");
-          const parts = base.split("_");
-          if (parts.length >= 2) {
-            const first = parts[0];
-            const second = parts[1];
-            if (first.toLowerCase().includes("core")) {
-              urlValue = `${hosturl}/StandaloneWindows64/${first}/${second}/key`;
-            } else {
-              urlValue = `${hosturl}/StandaloneWindows64/pck/${first}/${second}/key`;
-            }
-          }
-        }
-        newRow.url = urlValue;
+        const tempRow = {};
 
         let keyValue;
         if (typeof row.key_rowid === 'number') {
           const ref = keys.find(r => r.rowid === row.key_rowid);
           keyValue = ref ? ref.key : row.key_rowid;
-        } else keyValue = row.key_rowid;
-        newRow.key = keyValue;
+        } else {
+          keyValue = row.key_rowid;
+        }
 
         let internalIdValue;
+        let hashVal, containerVal;
 
         if (typeof row.entry_rowid === 'number') {
           const entryRef = entries.find(r => r.rowid === row.entry_rowid);
@@ -211,19 +203,19 @@ const fileInput = document.getElementById('fileinput');
                 continue;
               }
               if (k === 'internal_id_rowid') {
-                newRow.hash = entryCopy[k];
+                hashVal = entryCopy[k];
                 continue;
               }
               if (k === 'bundle_name') {
-                newRow.container = entryCopy[k];
+                containerVal = entryCopy[k];
                 continue;
               }
-              newRow[k] = entryCopy[k];
+              tempRow[k] = entryCopy[k];
             }
             if (entryCopy.data_rowid && typeof entryCopy.data_rowid === 'object') {
               for (const k in entryCopy.data_rowid) {
-                if (k === 'bundle_name') newRow.container = entryCopy.data_rowid[k];
-                else newRow[k] = entryCopy.data_rowid[k];
+                if (k === 'bundle_name') containerVal = entryCopy.data_rowid[k];
+                else tempRow[k] = entryCopy.data_rowid[k];
               }
             }
           }
@@ -231,16 +223,43 @@ const fileInput = document.getElementById('fileinput');
 
         for (const k in row) {
           if (k === 'key_rowid' || k === 'entry_rowid') continue;
-          if (!(k in newRow)) newRow[k] = row[k];
+          if (!(k in tempRow)) tempRow[k] = row[k];
         }
 
-        const lowerKey = String(newRow.key).toLowerCase();
-        const idKey = newRow.key + '|' + (internalIdValue ?? '');
-        if (newRow.key === internalIdValue) continue;
-        if (/_hd$/i.test(newRow.key) || /_sd$/i.test(newRow.key)) continue;
+        const lowerKey = String(keyValue).toLowerCase();
+        const idKey = keyValue + '|' + (internalIdValue ?? '');
+        if (keyValue === internalIdValue) continue;
+        if (/_hd$/i.test(keyValue) || /_sd$/i.test(keyValue)) continue;
         if (!(lowerKey.includes('spine/') || lowerKey.includes('.bundle'))) continue;
         if (seen.has(idKey)) continue;
         seen.add(idKey);
+
+        let urlVal = null;
+        if (hosturl && containerVal) {
+          const fname = file.name;
+          const base = fname.replace(/\.[^.]+$/, "");
+          const parts = base.split("_");
+          if (parts.length >= 2) {
+            const first = parts[0];
+            const second = parts[1];
+
+            if (first.toLowerCase().includes("core")) {
+              urlVal = `${hosturl}/StandaloneWindows64/${first}/${second}/${keyValue}`;
+            } else if (first.toLowerCase().includes("dp")) {
+              urlVal = `${hosturl}/StandaloneWindows64/pck/${first}/${second}/${keyValue}`;
+            }
+          }
+        }
+
+        const newRow = {};
+        if (urlVal) newRow.url = urlVal;
+        newRow.key = keyValue;
+        if (hashVal) newRow.hash = hashVal;
+
+        for (const k in tempRow) {
+        if (k === 'container' || k === 'bundle_name') continue;
+        if (!(k in newRow)) newRow[k] = tempRow[k];
+      }
 
         resolvedAndFlattened.push(newRow);
       }
@@ -254,6 +273,7 @@ const fileInput = document.getElementById('fileinput');
       fileLinks.appendChild(a);
       loadingOverlay.style.display = 'none';
     }
+
 
     startBtn.addEventListener('click', async () => {
       fileLinks.innerHTML = '';

@@ -185,7 +185,7 @@ onmessage = async e => {
         const second = parts[1];
         if (first.toLowerCase().includes("core")) {
           urlVal = `${hosturl}StandaloneWindows64/${first}/${second}/${keyValue}`;
-        } else if (first.toLowerCase().includes("dp")) {
+        } else {
           urlVal = `${hosturl}StandaloneWindows64/pck/${first}/${second}/${keyValue}`;
         }
       }

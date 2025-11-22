@@ -40,7 +40,7 @@ function fetchData() {
         setupSearch();
     }
 
-    fetch('https://api.dotgg.gg/nikke/characters/id')
+    fetch('https://nkas-l2d.pages.dev/characters.json') // https://api.dotgg.gg/nikke/characters/id 
         .then(response => response.json())
         .then(fetchedData => {
             const storedString = JSON.stringify(localData);
@@ -91,7 +91,10 @@ function displayData(data) {
 
 // Search for nikke ID
 function setupSearch() {
+    if (document.getElementById('nikkeSearchInput')) return;
+
     const searchInput = document.createElement('input');
+    searchInput.id = 'nikkeSearchInput';
     searchInput.type = 'text';
     searchInput.placeholder = 'Search by Name or ID';
     searchInput.style.color = 'black';
@@ -101,16 +104,16 @@ function setupSearch() {
     if (table) {
         table.parentNode.insertBefore(searchInput, table);
     }
-    
+
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         const rows = document.querySelectorAll('#charactersTable tbody tr');
         const visibleRows = [];
-    
+
         rows.forEach(row => {
-            const id = row.dataset.id;
-            const name = row.dataset.name;
-            
+            const id = row.dataset.id || '';
+            const name = row.dataset.name || '';
+
             if (id.includes(searchTerm) || name.includes(searchTerm)) {
                 row.style.display = '';
                 visibleRows.push(row);

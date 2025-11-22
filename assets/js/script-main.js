@@ -35,12 +35,12 @@ function fetchData() {
 
     if (localStorageData) {
         localData = JSON.parse(localStorageData);
-        displayData(localData);
-        processFetchedData(localData);
+        const processedLocal = processFetchedData(localData);
+        displayData(processedLocal);
         setupSearch();
     }
 
-    fetch('https://nkas-l2d.pages.dev/characters.json') // https://api.dotgg.gg/nikke/characters/id 
+    fetch('https://nkas-l2d.pages.dev/characters.json') // https://api.dotgg.gg/nikke/characters/id https://nkas-l2d.pages.dev/characters.json
         .then(response => response.json())
         .then(fetchedData => {
             const storedString = JSON.stringify(localData);
@@ -48,8 +48,8 @@ function fetchData() {
 
             if (storedString !== fetchedString) {
                 localStorage.setItem('textIDData', fetchedString);
-                displayData(fetchedData);
-                processFetchedData(fetchedData);
+                const processedFetched = processFetchedData(fetchedData);
+                displayData(processedFetched);
                 setupSearch();
             }
         })
@@ -57,11 +57,22 @@ function fetchData() {
 
 function processFetchedData(data) {
     const processedData = {};
-    for (const [id, name] of Object.entries(data)) {
-        const paddedId = id < 100 ? `0${id}` : id;
-        processedData[paddedId] = name;
+    for (const [rawKey, name] of Object.entries(data)) {
+        const key = String(rawKey).replace(/^c/, '');
+        const parts = key.split('_');
+        const numPart = parts[0];
+        const variantPart = parts[1];
+        const num = parseInt(numPart, 10);
+        if (isNaN(num)) {
+            processedData[key] = name;
+            continue;
+        }
+        const baseId = String(num);
+        const id = variantPart ? `${baseId}_${variantPart}` : baseId;
+        processedData[id] = name;
     }
     nikkeNameID = processedData;
+    return processedData;
 }
 
 
@@ -113,8 +124,15 @@ function setupSearch() {
         rows.forEach(row => {
             const id = row.dataset.id || '';
             const name = row.dataset.name || '';
-
+            let match = false;
             if (id.includes(searchTerm) || name.includes(searchTerm)) {
+                match = true;
+            } else {
+                if (/^\d+$/.test(searchTerm) && id.startsWith(searchTerm + '_')) {
+                    match = true;
+                }
+            }
+            if (match) {
                 row.style.display = '';
                 visibleRows.push(row);
             } else {
@@ -197,40 +215,45 @@ function exportTable() {
 function applyFilter() {
     let idFilter = document.getElementById("idFilter").value.trim().toLowerCase();
 
-    if (idFilter.length === 0){
+    if (!idFilter) {
+        updateTableVisibility();
+        closeFilteredResultsPopup();
+        return;
+    }
 
-    } else{
-        const match = idFilter.match(/^c(\d+)$/);
-        if (match) {
-            idFilter = match[1];
+    const cMatch = idFilter.match(/^c(\d+)(?:_(\d+))?$/);
+    if (cMatch) {
+        idFilter = cMatch[1];
+    } else if (idFilter.includes('_')) {
+        idFilter = getFirstPartOfChar(idFilter);
+    }
+
+    let idsToSearch = new Set();
+    for (const [id, name] of Object.entries(nikkeNameID)) {
+        const baseId = getFirstPartOfChar(String(id)).toLowerCase();
+        if (baseId.includes(idFilter) || name.toLowerCase().includes(idFilter)) {
+            idsToSearch.add(baseId);
         }
-        let idsToSearch = new Set();
-
-        for (const [id, name] of Object.entries(nikkeNameID)) {
-            if (id.includes(idFilter) || name.toLowerCase().includes(idFilter)) {
-                idsToSearch.add(id);
-            }
     }
 
     const resultTables = document.querySelectorAll(".table-container table");
-    const selector = document.getElementById("selector").value;
     resultTables.forEach(table => {
-        const tableBody = table.querySelector("tbody");
-        const rows = tableBody.querySelectorAll("tr");
+        const rows = table.querySelectorAll("tbody tr");
         rows.forEach(row => {
             const idColumn = row.querySelector("td:first-child");
-            const idValue = idColumn.textContent.toLowerCase();
-            const isMatch = [...idsToSearch].some(idToSearch => idValue.includes(idToSearch));
-            if (isMatch || idValue.includes(idFilter)) {
+            const rawIdValue = idColumn ? idColumn.textContent.trim().toLowerCase() : '';
+            const baseIdValue = getFirstPartOfChar(rawIdValue).toLowerCase();
+            const isMatch = [...idsToSearch].some(idToSearch => baseIdValue.includes(idToSearch));
+            if (isMatch || baseIdValue.includes(idFilter)) {
                 row.style.display = "";
             } else {
                 row.style.display = "none";
             }
         });
     });
+
     updateTableVisibility();
     showFilteredResultsPopup([...idsToSearch]);
-    }
 }
 
 // Filtered Result Popup
@@ -258,10 +281,22 @@ function showFilteredResultsPopup(filteredIds) {
     popupContent.classList.add("filtered-results-content");
     const resultList = document.createElement("ul");
     resultList.classList.add("filtered-results-list");
-    filteredIds.sort((a, b) => a - b);
+
+    function getNameForBase(base) {
+        for (const [key, val] of Object.entries(nikkeNameID)) {
+            if (String(getFirstPartOfChar(String(key))).toLowerCase() === String(base).toLowerCase()) {
+                return val;
+            }
+        }
+        return nikkeNameID[base] || '';
+    }
+
+    filteredIds = filteredIds.map(String);
+    filteredIds.sort((a, b) => Number(a) - Number(b));
     filteredIds.forEach(id => {
         const listItem = document.createElement("li");
-        listItem.textContent = `${id}: ${nikkeNameID[id]}`;
+        const name = getNameForBase(id);
+        listItem.textContent = `${id}: ${name}`;
         resultList.appendChild(listItem);
     });
 
@@ -344,12 +379,12 @@ function highlightRows() {
     const resultTables = document.querySelectorAll(".table-container table");
     resultTables.forEach(table => {
         const tableBody = table.querySelector("tbody");
-        const rows = tableBody.querySelectorAll("tr");
+        const rows = tableBody ? tableBody.querySelectorAll("tr") : [];
         let idRowsMap = new Map();
 
         rows.forEach(row => {
-            const firstColumn = row.querySelector("td:first-child");
-            const id = firstColumn ? firstColumn.textContent.trim() : '';
+            const firstCol = row.querySelector("td:first-child");
+            const id = firstCol ? firstCol.textContent.trim() : '';
             if (!idRowsMap.has(id)) {
                 idRowsMap.set(id, []);
             }
@@ -358,7 +393,7 @@ function highlightRows() {
 
         idRowsMap.forEach(idRows => {
             let groupStarted = false;
-            const columnCount = idRows[0].querySelectorAll("td").length;
+            const columnCount = idRows[0] ? idRows[0].querySelectorAll("td").length : 0;
             idRows.forEach((row, index) => {
                 const secondColumn = row.querySelector("td:nth-child(2)");
                 const thirdColumn = row.querySelector("td:nth-child(3)");
@@ -380,9 +415,9 @@ function highlightRows() {
                 if (lastColumn) {
                     lastColumn.style.borderRight = "2px solid black";
                 }
-                const firstColumn = row.querySelector("td:first-child");
-                if (firstColumn) {
-                    firstColumn.style.borderLeft = "2px solid black";
+                const firstColumnElem = row.querySelector("td:first-child");
+                if (firstColumnElem) {
+                    firstColumnElem.style.borderLeft = "2px solid black";
                 }
             });
 
@@ -395,6 +430,7 @@ function highlightRows() {
                 }
             }
         });
+
         const headerRow = table.querySelector("thead tr");
 
         if (headerRow) {

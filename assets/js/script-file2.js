@@ -163,8 +163,10 @@ function analyzeText() {
 			}
 			resultContainer.appendChild(resultTable);
 			const resultBody = resultTable.querySelector("tbody");
+			regex.lastIndex = 0;
 			let matches;
-			let rowsHtml = '';
+			const rows = [];
+			const seen = new Set();
 			while ((matches = regex.exec(text)) !== null) {
 				let tchar, char, variant, bundle;
 				if (key === "Burst(Lobby)" || key === "Burst(Battle)") {
@@ -180,27 +182,24 @@ function analyzeText() {
 					variant = matches[2];
 					bundle = matches[3];
 				}
-			if (key === "Background" || key === "EventsWallpaper"){
-					rowsHtml += `<tr><td>${char}</td><td>${bundle}</td></tr>`;
+				let dedupeKey, rowObj;
+				if (key === "Background" || key === "EventsWallpaper"){
+					dedupeKey = `${char}|${bundle}`;
+					rowObj = { id: char, ver: bundle, html: `<tr><td>${char}</td><td>${bundle}</td></tr>` };
 				} else {
-					rowsHtml += `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>`;
+					dedupeKey = `${char}|${variant}|${bundle}`;
+					rowObj = { id: char, ver: variant, html: `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>` };
+				}
+				if (!seen.has(dedupeKey)) {
+					seen.add(dedupeKey);
+					rows.push(rowObj);
 				}
 			}
-			const sortedRows = rowsHtml.split('</tr>')
-				.filter(row => row.trim() !== '')
-				.sort((a, b) => {
-					const aID = a.split('</td>')[0].split('<td>')[1];
-					const bID = b.split('</td>')[0].split('<td>')[1];
-					const aVer = a.split('</td>')[1].split('<td>')[1];
-					const bVer = b.split('</td>')[1].split('<td>')[1];
-					if (aID !== bID) {
-						return aID.localeCompare(bID);
-					} else {
-						return aVer.localeCompare(bVer);
-					}
-				})
-				.join('</tr>');
-			resultBody.innerHTML = sortedRows;
+			rows.sort((a, b) => {
+				if (a.id !== b.id) return a.id.localeCompare(b.id);
+				return a.ver.localeCompare(b.ver);
+			});
+			resultBody.innerHTML = rows.map(r => r.html).join('');
 			resultTable.innerHTML += `<caption>${key}</caption>`;
 		}
 	} else if (selector !== "None") {
@@ -214,8 +213,10 @@ function analyzeText() {
 		resultContainer.innerHTML = "";
 		resultContainer.appendChild(resultTable);
 		const resultBody = resultTable.querySelector("tbody");
+		regex.lastIndex = 0;
 		let matches;
-		let rowsHtml = '';
+		const rows = [];
+		const seen = new Set();
 		while ((matches = regex.exec(text)) !== null) {
 			let tchar, char, variant, bundle;
 			if (selector === "Burst(Lobby)" || selector === "Burst(Battle)" || selector === "Voice" || selector === "Voice(MaxBond)" || selector === "Voice(Title)") {
@@ -231,27 +232,24 @@ function analyzeText() {
 				variant = matches[2];
 				bundle = matches[3];
 			}
+			let dedupeKey, rowObj;
 			if (selector === "Background" || selector === "EventsWallpaper"){
-				rowsHtml += `<tr><td>${char}</td><td>${bundle}</td></tr>`;
+				dedupeKey = `${char}|${bundle}`;
+				rowObj = { id: char, ver: bundle, html: `<tr><td>${char}</td><td>${bundle}</td></tr>` };
 			} else {
-				rowsHtml += `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>`;
+				dedupeKey = `${char}|${variant}|${bundle}`;
+				rowObj = { id: char, ver: variant, html: `<tr><td>${char}</td><td>${variant}</td><td>${bundle}</td></tr>` };
+			}
+			if (!seen.has(dedupeKey)) {
+				seen.add(dedupeKey);
+				rows.push(rowObj);
 			}
 		}
-		const sortedRows = rowsHtml.split('</tr>')
-			.filter(row => row.trim() !== '')
-			.sort((a, b) => {
-				const aID = a.split('</td>')[0].split('<td>')[1];
-				const bID = b.split('</td>')[0].split('<td>')[1];
-				const aVer = a.split('</td>')[1].split('<td>')[1];
-				const bVer = b.split('</td>')[1].split('<td>')[1];
-				if (aID !== bID) {
-					return aID.localeCompare(bID);
-				} else {
-					return aVer.localeCompare(bVer);
-				}
-			})
-			.join('</tr>');
-		resultBody.innerHTML = sortedRows;
+		rows.sort((a, b) => {
+			if (a.id !== b.id) return a.id.localeCompare(b.id);
+			return a.ver.localeCompare(b.ver);
+		});
+		resultBody.innerHTML = rows.map(r => r.html).join('');
 		resultTable.innerHTML += `<caption>${selector}</caption>`;
 	} else {
 		resultContainer.innerHTML = "";

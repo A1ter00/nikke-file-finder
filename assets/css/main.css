@@ -970,7 +970,7 @@ body.is-menu-visible #menu {
   height: 100%;
   max-width: 100%;
   overflow-y: auto;
-  padding: 3rem 2rem;
+  padding: 0 2rem;
   position: fixed;
   right: 0;
   top: 0;
@@ -1070,15 +1070,69 @@ body.is-menu-visible #menu {
     #menu2 .close:before {
       -moz-osx-font-smoothing: grayscale;
       -webkit-font-smoothing: antialiased;
-      font-family: FontAwesome;
+      font-family: "Font Awesome 5 Free";
       font-style: normal;
-      font-weight: normal;
+      font-weight: 900;
       text-transform: none !important; }
     #menu2 .close:before {
-      content: 'X';
+      content: "\f00d";
       font-size: 1.25rem; }
     #menu2 .close:hover {
       color: #ffffff; }
+
+  #menu2 .menu2-header-block {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 10003;
+    background-color: rgb(34, 46, 60);
+    padding: 0.5rem 0 0.75rem 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  #menu2 .menu2-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 0.25rem 0;
+    margin: 0 0 0 0;
+    position: relative;
+  }
+
+  #menu2 .menu2-header-row h4 {
+    margin: 0;
+    padding: 0 1rem 0 0;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+
+  #menu2 .menu2-header-row .close {
+    position: absolute;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    padding-right: 0;
+    height: auto;
+    line-height: normal;
+    color: rgba(255,255,255,0.75);
+    display: inline-block;
+  }
+
+  #menu2 .menu2-header-block #nikkeSearchInput {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0 0 0;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    background-color: #fff;
+    color: #000;
+  }
 
 body.is-menu2-visible #menu2 {
   -moz-transform: translateX(0);
@@ -1090,8 +1144,8 @@ body.is-menu2-visible #menu2 {
 
 /* Filter Popup */
 .filtered-results-popup {
-  width: 250px;
-  max-height: 21%;
+  width: 300px;
+  max-height: 31%;
   padding: 10px;
   background-color: white;
   border: 1px solid #ccc;

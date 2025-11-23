@@ -62,12 +62,11 @@ function processFetchedData(data) {
         const parts = key.split('_');
         const numPart = parts[0];
         const variantPart = parts[1];
-        const num = parseInt(numPart, 10);
-        if (isNaN(num)) {
+        if (!/^\d+$/.test(numPart)) {
             processedData[key] = name;
             continue;
         }
-        const baseId = String(num);
+        const baseId = String(numPart);
         const id = variantPart ? `${baseId}_${variantPart}` : baseId;
         processedData[id] = name;
     }
@@ -84,12 +83,17 @@ function displayData(data) {
         if (data && typeof data === 'object') { 
             for (const id in data) {
                 if (data.hasOwnProperty(id)) {
+                    const base = getFirstPartOfChar(String(id));
+                    const ver = getVariantFromChar(String(id));
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${id}</td>
+                        <td>${base}</td>
+                        <td>${ver}</td>
                         <td>${data[id]}</td>
                     `;
                     row.dataset.id = id;
+                    row.dataset.base = base;
+                    row.dataset.ver = ver;
                     row.dataset.name = data[id].toLowerCase();
                     tableBody.appendChild(row);
                 }
@@ -123,9 +127,11 @@ function setupSearch() {
 
         rows.forEach(row => {
             const id = row.dataset.id || '';
+            const base = row.dataset.base || '';
+            const ver = row.dataset.ver || '';
             const name = row.dataset.name || '';
             let match = false;
-            if (id.includes(searchTerm) || name.includes(searchTerm)) {
+            if (id.includes(searchTerm) || base.includes(searchTerm) || ver.includes(searchTerm) || name.includes(searchTerm)) {
                 match = true;
             } else {
                 if (/^\d+$/.test(searchTerm) && id.startsWith(searchTerm + '_')) {
@@ -293,11 +299,33 @@ function showFilteredResultsPopup(filteredIds) {
 
     filteredIds = filteredIds.map(String);
     filteredIds.sort((a, b) => Number(a) - Number(b));
-    filteredIds.forEach(id => {
-        const listItem = document.createElement("li");
-        const name = getNameForBase(id);
-        listItem.textContent = `${id}: ${name}`;
-        resultList.appendChild(listItem);
+    filteredIds.forEach(base => {
+        const matches = [];
+        for (const [key, val] of Object.entries(nikkeNameID)) {
+            if (String(getFirstPartOfChar(String(key))).toLowerCase() === String(base).toLowerCase()) {
+                const variant = getVariantFromChar(String(key));
+                matches.push({ key, variant, name: val });
+            }
+        }
+        if (matches.length === 0) {
+            const fallbackName = getNameForBase(base);
+            const listItem = document.createElement("li");
+            listItem.textContent = `${base}: ${fallbackName}`;
+            resultList.appendChild(listItem);
+        } else {
+            matches.sort((a, b) => {
+                const na = Number(a.variant);
+                const nb = Number(b.variant);
+                if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                return a.variant.localeCompare(b.variant);
+            });
+            matches.forEach(m => {
+                const displayId = m.key.includes('_') ? m.key : base;
+                const listItem = document.createElement("li");
+                listItem.textContent = `${displayId}: ${m.name}`;
+                resultList.appendChild(listItem);
+            });
+        }
     });
 
     popupContent.appendChild(resultList);

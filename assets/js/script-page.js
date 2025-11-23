@@ -17,8 +17,50 @@
                 visibleClass: 'visible',
             }, userConfig);
 
-        // close button
-        $this.append('<a href="#' + id + '" class="close"></a>');
+        $this.prepend('<a href="#' + id + '" class="close"></a>');
+
+        (function() {
+            var $close = $this.find('.close').first();
+            var $h = $this.find('h4').first();
+
+            // Build wrapper and header row
+            var $headerBlock = $this.find('.menu2-header-block').first();
+            if (!$headerBlock.length) {
+                $headerBlock = $('<div class="menu2-header-block"></div>');
+                var $headerRow = $('<div class="menu2-header-row"></div>');
+                if ($h.length) $headerRow.append($h);
+                if ($close.length) $headerRow.append($close);
+                $headerBlock.append($headerRow);
+                $this.prepend($headerBlock);
+            } else {
+                var $headerRow = $headerBlock.find('.menu2-header-row').first();
+                if (!$headerRow.length) {
+                    $headerRow = $('<div class="menu2-header-row"></div>');
+                    $headerBlock.prepend($headerRow);
+                }
+                if ($h.length && $headerRow.find('h4').length === 0) $headerRow.append($h);
+                if ($close.length && $headerRow.find('.close').length === 0) $headerRow.append($close);
+            }
+
+            var $search = $this.find('#nikkeSearchInput');
+            if ($search.length) {
+                $headerBlock.append($search);
+            } else {
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(m) {
+                        m.addedNodes.forEach(function(node) {
+                            try {
+                                if (node && node.id === 'nikkeSearchInput') {
+                                    $headerBlock.append($(node));
+                                    observer.disconnect();
+                                }
+                            } catch (e) {}
+                        });
+                    });
+                });
+                observer.observe($this[0], { childList: true, subtree: true });
+            }
+        })();
 
         // Event: Toggle.
         $body.on('click', 'a[href="#' + id + '"]', function(event) {

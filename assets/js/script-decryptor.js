@@ -119,8 +119,26 @@ const fileInput = document.getElementById('fileinput');
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const currentFileDisplay = document.getElementById('current-file');
+    const errorAlert = document.getElementById('error-alert');
     let totalFiles = 0;
     let completedFiles = 0;
+    let errorCount = 0;
+
+    function showError(message) {
+      errorCount++;
+      errorAlert.style.display = 'block';
+      const timestamp = new Date().toLocaleTimeString();
+      const errorMsg = document.createElement('div');
+      errorMsg.style.marginBottom = errorAlert.children.length > 0 ? '8px' : '0';
+      errorMsg.innerHTML = '❌ ' + message;
+      errorAlert.appendChild(errorMsg);
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        if (errorMsg.parentNode) errorMsg.remove();
+        if (errorAlert.children.length === 0) errorAlert.style.display = 'none';
+      }, 5000);
+    }
 
     function updateProgress() {
       const percentage = totalFiles > 0 ? (completedFiles / totalFiles) * 100 : 0;
@@ -134,6 +152,7 @@ const fileInput = document.getElementById('fileinput');
         currentFileDisplay.textContent = fileName + ' • ' + current.toLocaleString() + ' / ' + total.toLocaleString();
       } else if (e.data.error) {
         console.error(e.data.error, e.data.fileName);
+        showError(e.data.fileName + ': ' + e.data.error);
       } else {
         const { fileName, data } = e.data;
         allResults.push({ name: fileName, data });
@@ -154,12 +173,16 @@ const fileInput = document.getElementById('fileinput');
         if (pendingCount <= 0) {
           loadingOverlay.style.display = 'none';
           currentFileDisplay.textContent = 'Processing files...';
+          if (completedFiles === 0 && errorCount > 0) {
+            showError('No files were successfully processed');
+          }
         }
       }
     };
 
     worker.onerror = e => {
       console.error('Worker error', e);
+      showError('Worker error: ' + e.message);
       if (pendingCount > 0) pendingCount -= 1;
       if (pendingCount <= 0) loadingOverlay.style.display = 'none';
     };
@@ -168,9 +191,13 @@ const fileInput = document.getElementById('fileinput');
       fileLinks.innerHTML = '';
       allResults = [];
       downloadAllBtn.style.display='none';
+      errorAlert.innerHTML = '';
+      errorAlert.style.display = 'none';
+      errorCount = 0;
+      
       const files = Array.from(fileInput.files || []);
       if(files.length === 0){ 
-        alert('Select files first or drop them into the box.'); 
+        showError('No files selected. Please drop files or click to select.');
         return; 
       }
 
@@ -194,6 +221,15 @@ const fileInput = document.getElementById('fileinput');
         currentFileDisplay.textContent = 'Processing: ' + f.name;
         const ab = await f.arrayBuffer();
         worker.postMessage({ fileName: f.name, arrayBuffer: ab, hosturl }, [ab]);
+      }
+    });
+
+    // Warn user if they try to leave while decrypting
+    window.addEventListener('beforeunload', (e) => {
+      if (pendingCount > 0 && loadingOverlay.style.display === 'block') {
+        e.preventDefault();
+        e.returnValue = 'Decryption is in progress. Are you sure you want to leave?';
+        return e.returnValue;
       }
     });
 

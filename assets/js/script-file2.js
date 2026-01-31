@@ -8,6 +8,21 @@ const regexPatterns = {
 	Background: /scenariobackground\(sd\)_assets_(\w+).bundle_(\w+)\.bundle/g
 };
 
+const errorAlert = document.getElementById('error-alert');
+
+function showError(message) {
+  errorAlert.style.display = 'block';
+  const errorMsg = document.createElement('div');
+  errorMsg.style.marginBottom = errorAlert.children.length > 0 ? '8px' : '0';
+  errorMsg.innerHTML = '✘ ' + message;
+  errorAlert.appendChild(errorMsg);
+  
+  setTimeout(() => {
+    if (errorMsg.parentNode) errorMsg.remove();
+    if (errorAlert.children.length === 0) errorAlert.style.display = 'none';
+  }, 5000);
+}
+
 window.onload = function() {
     generateCheckboxes();
     generateSelector();
@@ -18,13 +33,23 @@ window.onload = function() {
 function readFolder(input) {
     let loadingOverlay = document.getElementById('loading-overlay');
     loadingOverlay.style.display = 'block';
+    errorAlert.innerHTML = '';
+    errorAlert.style.display = 'none';
+    
     const files = input.files;
     let hasValidFiles = false;
     let filesProcessed = 0;
     
     if (files.length > 0) {
         let combinedText = "";
-        const validFilesCount = countValidFiles(files); 
+        const validFilesCount = countValidFiles(files);
+        
+        if (validFilesCount === 0) {
+            loadingOverlay.style.display = 'none';
+            showError('No valid JSON files found in the selected folder');
+            return;
+        }
+        
         for (const file of files) {
             if (file.name.toLowerCase().endsWith('.json')) {
                 hasValidFiles = true;

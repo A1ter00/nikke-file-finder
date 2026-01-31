@@ -107,8 +107,15 @@ onmessage = async e => {
 
   const seen = new Set();
   const resolvedAndFlattened = [];
+  const totalEntries = keyEntries.length;
+  let processedCount = 0;
 
   for (const row of keyEntries) {
+    processedCount++;
+    if (processedCount % 100 === 0) {
+      postMessage({ progress: { fileName, current: processedCount, total: totalEntries } });
+    }
+
     const tempRow = {};
 
     let keyValue;

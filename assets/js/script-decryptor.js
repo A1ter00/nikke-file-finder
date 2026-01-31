@@ -100,8 +100,23 @@ const fileInput = document.getElementById('fileinput');
 
     const worker = new Worker('worker.js');
     const loadingOverlay = document.getElementById('loading-overlay');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const currentFileDisplay = document.getElementById('current-file');
+    let totalFiles = 0;
+    let completedFiles = 0;
+
+    function updateProgress() {
+      const percentage = totalFiles > 0 ? (completedFiles / totalFiles) * 100 : 0;
+      progressBar.style.width = percentage + '%';
+      progressText.textContent = completedFiles + ' / ' + totalFiles + ' files completed';
+    }
+
     worker.onmessage = e => {
-      if (e.data.error) {
+      if (e.data.progress) {
+        const { fileName, current, total } = e.data.progress;
+        currentFileDisplay.textContent = fileName + ' • ' + current.toLocaleString() + ' / ' + total.toLocaleString();
+      } else if (e.data.error) {
         console.error(e.data.error, e.data.fileName);
       } else {
         const { fileName, data } = e.data;
@@ -115,9 +130,15 @@ const fileInput = document.getElementById('fileinput');
         if(allResults.length>0) downloadAllBtn.style.display='inline-block';
       }
 
-      if (pendingCount > 0) pendingCount -= 1;
-      if (pendingCount <= 0) {
-        loadingOverlay.style.display = 'none';
+      if (!e.data.progress) {
+        completedFiles += 1;
+        updateProgress();
+
+        if (pendingCount > 0) pendingCount -= 1;
+        if (pendingCount <= 0) {
+          loadingOverlay.style.display = 'none';
+          currentFileDisplay.textContent = 'Processing files...';
+        }
       }
     };
 
@@ -138,6 +159,9 @@ const fileInput = document.getElementById('fileinput');
       }
 
       pendingCount = files.length;
+      totalFiles = files.length;
+      completedFiles = 0;
+      updateProgress();
       loadingOverlay.style.display = 'block';
 
       let hosturl = null;
@@ -151,6 +175,7 @@ const fileInput = document.getElementById('fileinput');
       }
 
       for (const f of files){
+        currentFileDisplay.textContent = 'Processing: ' + f.name;
         const ab = await f.arrayBuffer();
         worker.postMessage({ fileName: f.name, arrayBuffer: ab, hosturl }, [ab]);
       }

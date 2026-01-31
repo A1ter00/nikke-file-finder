@@ -81,7 +81,7 @@ const fileInput = document.getElementById('fileinput');
       };
 
       const proxiedUrl =
-        "https://corsproxy.io/?" +
+        "https://api.allorigins.win/raw?url=" +
         encodeURIComponent("https://us-lobby.nikke-kr.com/v1/resourcehosts2");
 
       const resp = await fetch(proxiedUrl, {

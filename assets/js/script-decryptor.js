@@ -74,28 +74,44 @@ const fileInput = document.getElementById('fileinput');
     }
 
     async function fetchHostUrl() {
+      const targetUrl = "https://us-lobby.nikke-kr.com/v1/resourcehosts2";
       const headers = {
         "Content-Type": "application/octet-stream+protobuf",
         "Accept": "application/octet-stream+protobuf",
         "Accept-Encoding": "gzip,deflate"
       };
 
-      const proxiedUrl =
-        "https://api.allorigins.win/raw?url=" +
-        encodeURIComponent("https://us-lobby.nikke-kr.com/v1/resourcehosts2");
+      // Try multiple CORS proxies
+      const proxies = [
+        url => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+        url => "https://cors-anywhere.herokuapp.com/" + url,
+        url => "https://thingproxy.freeboard.io/fetch/" + url,
+      ];
 
-      const resp = await fetch(proxiedUrl, {
-        method: "POST",
-        headers
-      });
+      for (const proxyFn of proxies) {
+        try {
+          const proxiedUrl = proxyFn(targetUrl);
+          const resp = await fetch(proxiedUrl, {
+            method: "POST",
+            headers,
+            signal: AbortSignal.timeout(5000)
+          });
 
-      const text = await resp.text();
-      const m = text.match(/https:\/\/(.*)\{Platform\}/);
-      if (!m) {
-        console.warn("Could not parse host URL from response");
-        return null;
+          if (!resp.ok) continue;
+
+          const text = await resp.text();
+          const m = text.match(/https:\/\/(.*)\{Platform\}/);
+          if (m) {
+            return "https://" + m[1];
+          }
+        } catch (err) {
+          console.warn("Proxy failed:", err.message);
+          continue;
+        }
       }
-      return "https://" + m[1];
+
+      console.warn("Could not fetch host URL from any proxy");
+      return null;
     }
 
     const worker = new Worker('worker.js');
